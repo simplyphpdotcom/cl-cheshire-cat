@@ -77,15 +77,17 @@ was found or not."
 
 ;; Daemonize Chessire
 #+sbcl (asdf:load-system :sb-daemon)
-#+sbcl
 (when (get-chessire-config "daemonize" :section-name "daemon" :type :boolean)
+  #+sbcl
   (sb-daemon:daemonize :exit-parent t
                        :pidfile (get-chessire-config "pid_file"  :section-name "daemon" :default-value "/var/run/chessire.pid")
                        :output  (get-chessire-config "log"       :section-name "daemon")
                        :error   (get-chessire-config "error_log" :section-name "daemon")
                        :user    (get-chessire-config "user"      :section-name "daemon")
                        :group   (get-chessire-config "group"     :section-name "daemon")
-                       :disable-debugger (not *chessire-debugp*)))
+                       :disable-debugger (not *chessire-debugp*))
+  #-sbcl
+  (error "Daemonize facility is supported only using SBCL and sb-daemon. Any compatibility improvment patch is welcome."))
 
 ;; Start swank server if requested
 (when (get-chessire-config "enable" :section-name "swank" :type :boolean)
