@@ -25,6 +25,33 @@
 
 (cl:in-package :cl-chessire-cat)
 
+(defun add-qs-update (rule update &key position)
+  "This function add a new query string update operation to a redirection
+  rule. <pre>position</pre> is the position at which the rule will be inserted
+  in <pre>rules</pre>. If <pre>position</pre> is nil or unspecified,
+  <pre>rule</pre> will be inserted at the begining of <pre>rules</pre>."
+  (if position
+      (push update (cdr (nthcdr position (rr-qs-updates rule))))
+      (push update (rr-qs-updates rule))))
+
+(defun remove-qs-update (rule operation name match)
+  "This function removes the query string update designated by operation name
+and match."
+  (let ((key (remove nil (list operation name match))))
+    (deletef (rr-qs-updates rule) key
+             :key #'qsu-key :test #'equal)))
+
+(defun find-qs-update (rule operation name match &key error-p)
+  "This function returns the query string update designated by operation name
+and match."
+  (let* ((key   (remove nil (list operation name match)))
+         (found (member key (rr-qs-updates rule)
+                        :key #'qsu-key :test #'equal)))
+    (if found
+        (car found)
+        (and error-p
+             (error 'rs-no-such-qs-update :operation operation :name name :match match)))))
+
 (defmacro add-domain-name-rule (rules rule &key position)
   "This macro adds <pre>rule</pre> (applying to domaine names) in
 <pre>rules</pre>. <pre>position</pre> is the position at which the rule will be
@@ -146,10 +173,13 @@ list (new-domain-name new-uri . redirection-parameters)"
                   (list new-domain
                         new-uri
                         (merge-redirection-parameter (rr-http-code domain-redirection-rule)
-                                                     (rr-http-code uri-rule)))
+                                                     (rr-http-code uri-rule))
+                        (append (rr-qs-updates domain-redirection-rule)
+                                (rr-qs-updates uri-rule)))
                   (list new-domain
                         uri
-                        (rr-http-code domain-redirection-rule)))))
+                        (rr-http-code domain-redirection-rule)
+                        (rr-qs-updates domain-redirection-rule)))))
         (multiple-value-bind (new-domain http-code)
             (apply-default-domain-name-rule domain-name)
           (list new-domain uri http-code)))))

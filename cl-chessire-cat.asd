@@ -40,7 +40,12 @@
                         :serial      t
                         :components  ((:file "package")
                                       (:file "utils")
-                                      (:file "classes")
+                                      (:module "classes"
+                                               :serial     t
+                                               :components ((:file "singleton-class")
+                                                            (:file "conditions")
+                                                            (:file "query-string")
+                                                            (:file "rules")))
                                       (:file "behavior")
                                       (:file "admin-handler")
                                       (:file "server")))))

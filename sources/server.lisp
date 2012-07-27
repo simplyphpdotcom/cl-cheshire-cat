@@ -63,10 +63,13 @@ request."
                     (host *request*))
       (admin-handler acceptor)
       (handler-case
-          (destructuring-bind (domain-name uri &optional (http-status-code 302))
+          (destructuring-bind (domain-name path &optional (http-status-code 302) qs-updates)
               (compute-redirection (redirection-acceptor-rules acceptor)
                                    (host *request*) (script-name* *request*))
-            (redirect uri :host domain-name :code http-status-code))
+            (let ((query-string (copy-alist (get-parameters* *request*))))
+              (dolist (update qs-updates)
+                (setf query-string (update-query-string update query-string (host *request*) (script-name* *request*))))
+              (redirect (compute-uri path query-string) :host domain-name :code http-status-code)))
         (rs-loop-detected ()
           (setf (return-code* *reply*) +http-not-found+)))))
 

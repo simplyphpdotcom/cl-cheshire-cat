@@ -55,11 +55,13 @@
      "OK")
 
     ((starts-with-subseq "/remove" path)
-     (when (post-parameter "confirmed")
-       (remove-domain-name-rule (redirection-acceptor-rules redirection-acceptor)
-                                (make-keyword (string-upcase (get-parameter "kind")))
-                                (get-parameter "match")))
-     "OK")
+     (if (post-parameter "confirmed")
+         (progn
+           (remove-domain-name-rule (redirection-acceptor-rules redirection-acceptor)
+                                    (make-keyword (string-upcase (get-parameter "kind")))
+                                    (get-parameter "match"))
+           "OK")
+         "Not confirmed, nothing deleted."))
     
     ((starts-with-subseq "/list" path)
      (let ((kind        (when-let (kind (get-parameter "kind"))
@@ -83,7 +85,15 @@
                                         (get-parameter "match")
                                         :error-p t)))
        (update-rule% rule (post-parameters* *request*)))
-     "OK")))
+     "OK")
+
+    ((starts-with-subseq "/query-string-updates/" path)
+     (let ((rule  (find-domain-name-rule (redirection-acceptor-rules redirection-acceptor)
+                                         (make-keyword (string-upcase (get-parameter "domain-name-kind" *request*)))
+                                         (get-parameter "domain-name-match" *request*)
+                                         :error-p t)))
+       (admin-query-string-handler% (subseq path 21) rule)))
+))
 
 (defun admin-uri-rules-handler% (path domain-name-rule)
   "Handler for URI rules management."
@@ -99,11 +109,13 @@
      "OK")
 
     ((starts-with-subseq "/remove" path)
-     (when (post-parameter "confirmed")
-       (remove-uri-rule domain-name-rule
-                        (make-keyword (string-upcase (post-parameter "kind")))
-                        (post-parameter "match")))
-     "OK")
+     (if (post-parameter "confirmed")
+         (progn
+           (remove-uri-rule domain-name-rule
+                            (make-keyword (string-upcase (post-parameter "kind")))
+                            (post-parameter "match"))
+           "OK")
+         "Not confirmed, nothing deleted."))
 
     ((starts-with-subseq "/list" path)
      (let ((kind        (get-parameter "kind"))
@@ -126,7 +138,68 @@
                                 (get-parameter "match")
                                 :error-p t)))
        (update-rule% rule (post-parameters* *request*)))
-     "OK")))
+     "OK")
+
+    ((starts-with-subseq "/query-string-updates/" path)
+     (let ((rule  (find-uri-rule domain-name-rule
+                                 (make-keyword (string-upcase (get-parameter "uri-kind" *request*)))
+                                 (get-parameter "uri-match" *request*)
+                                 :error-p t)))
+       (admin-query-string-handler% (subseq path 21) rule)))))
+
+(defun admin-query-string-handler% (path rule)
+  "Handler for query-string operation"
+  (cond ((starts-with-subseq "/add" path)
+         (let* ((operation (make-keyword (string-upcase (post-parameter "operation"))))
+                ((value-kw (if (post-parameter "path-as-value")
+                               `(:value :path)
+                               (when (post-parameter "domain-as-value")
+                                 `(:value :domain)))))
+                (qsu       (apply #'make-query-string-update operation 
+                                  (nconc value-kw
+                                         (mapcan (lambda (reader-spec)
+                                                   (let* ((kw (car reader-spec))
+                                                          (param-name (string-downcase (symbol-name kw))))
+                                                     (when-let (value (post-parameter param-name))
+                                                       `((,kw . ,value))))) 
+                                                 *qsu-generic-readers*)))))
+           (add-qs-update rule qsu
+                          :position (parse-integer-or-nil (post-parameter "position"))))
+         "OK")
+
+        ((starts-with-subseq "/remove" path)
+         (if (post-parameter "confirmed")
+             (progn 
+               (remove-qs-update rule
+                                 (make-keyword (string-upcase (post-parameter "operation")))
+                                 (post-parameter "name")
+                                 (post-parameter "match"))
+               "OK")
+             "Not confirmed, nothing deleted."))
+
+        ((starts-with-subseq "/list" path)
+         (let ((operation   (when-let (operation (get-parameter "operation"))
+                              (make-keyword (string-upcase operation))))
+               (name        (when-let (name      (get-parameter "name"))
+                              (create-scanner name :single-line-mode t)))
+               (new-name    (when-let (new-name  (get-parameter "new-name"))
+                              (create-scanner new-name :single-line-mode t)))
+               (match       (when-let (match     (get-parameter "match"))
+                              (create-scanner match :single-line-mode t)))
+               (replacement (when-let (replacement (get-parameter "replacement"))
+                              (create-scanner replacement :single-line-mode t))))
+           (format nil "~S" (remove-if (lambda (update)
+                                         (or (when operation
+                                               (not (eq operation     (qsu-operation   update))))
+                                             (when name
+                                               (not (scan name        (qsu-name        update))))
+                                             (when new-name
+                                               (not (scan new-name    (qsu-new-name    update))))
+                                             (when match
+                                               (not (scan match       (qsu-match       update))))
+                                             (when replacement
+                                               (not (scan replacement (qsu-replacement update))))))
+                                       (rr-qs-updates rule)))))))
 
 (defun admin-handler (redirection-acceptor)
   "Management handler."

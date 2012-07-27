@@ -25,29 +25,36 @@
 
 (cl:in-package :cl-chessire-cat)
 
-(defclass uri-action)
-
 (defclass redirection-rule ()
-  ((kind        :accessor rr-kind        :initarg :kind
-                :type keyword
-                :documentation "A selector for the matching alogrithm used for
-                this rule.")
-   (match       :accessor rr-match       :initarg :match
-                :type (or string list)
-                :documentation "The matching pattern used for this rule.")
-   (matcher     :reader   rr-matcher     :initform (lambda (str) (declare (ignore str)) (error "Not Implemented."))
-                :type (function (string) (values t string))
-                :documentation "The matching closure implementing this rule
-                matching algorithm and performing the replacement.")
-   (replacement :accessor rr-replacement :initarg :replacement :initform nil
-                :type (or string null)
-                :documentation "The replacement specification for this
-                string. If it's null, this rule does not modify its
-                target-string.")
-   (http-code   :accessor rr-http-code   :initarg :http-code :initform nil
-                :type (or null (integer 300 399))
-                :documentation "The HTTP Status Code sent when this rule is
-                applied. Can be overwritten by a subsequent rule."  ))
+  ((kind                 :accessor rr-kind        :initarg :kind
+                         :type keyword
+                         :documentation "A selector for the matching alogrithm
+                         used for this rule.")
+   (match                :accessor rr-match       :initarg :match
+                         :type (or string list)
+                         :documentation "The matching pattern used for this
+                         rule.")
+   (matcher              :reader   rr-matcher     :initform (lambda (str)
+                                                              (declare (ignore str))
+                                                              (error "Not Implemented."))
+                         :type (function (string) (values t string))
+                         :documentation "The matching closure implementing this
+                         rule matching algorithm and performing the
+                         replacement.")
+   (replacement          :accessor rr-replacement :initarg :replacement :initform nil
+                         :type (or string null)
+                         :documentation "The replacement specification for this
+                         string. If it's null, this rule does not modify its
+                         target-string.")
+   (http-code            :accessor rr-http-code   :initarg :http-code :initform nil
+                         :type (or null (integer 300 399))
+                         :documentation "The HTTP Status Code sent when this
+                         rule is applied. Can be overwritten by a subsequent
+                         rule."  )
+   (query-string-updates :accessor rr-qs-updates  :initform '()
+                         :type list
+                         :documentation "List of query string update performed
+                         when this rule match."))
   (:documentation "Root class for redirection rules."))
 
 (defgeneric resolve-rr-matcher (rule)
@@ -55,8 +62,10 @@
 <pre>rr-matching-p</pre> can be used. It is the only function allowed to modify
 the <pre>matcher</pre> slot"))
 
-(defmethod initialize-instance :after ((instance redirection-rule) &rest initargs &key &allow-other-keys)
-  "Ensures the initialization of the <pre>matcher</pre> slot and the type of the http-code slot."
+(defmethod initialize-instance :after ((instance redirection-rule)
+                                       &rest initargs &key &allow-other-keys)
+  "Ensures the initialization of the <pre>matcher</pre> slot and the type of the
+http-code slot."
   (declare (ignore initargs))
   (check-type (rr-http-code instance) (or null (integer 300 399)))
   (resolve-rr-matcher instance))
@@ -218,23 +227,3 @@ returned values."
       (drr-uri-rules drr)
       (when error-p
         (error 'rs-loop-detected))))
-
-(define-condition rs-error (error) ()
-  (:documentation "Root condition for redirection server errors."))
-
-(define-condition rs-loop-detected (rs-error) ()
-  (:documentation "Error raised if a loop is detected by the redirection
-    engine. If not caught, this loop will make the server reply with a \"404 Not
-    Found\"."))
-
-(define-condition rs-no-such-rule (rs-error)
-  ((kind  :reader rr-kind  :initarg :kind)
-   (match :reader rr-match :initarg :match))
-  (:documentation "Error raised if a rule cannot be found."))
-
-(define-condition rs-no-such-domain-rule (rs-no-such-rule) ()
-  (:documentation "Error raised if a domain name rule cannot be found."))
-
-(define-condition rs-no-such-uri-rule (rs-no-such-rule)
-  ((domain-name-rule :accessor urr-domain-name-rule :initarg :domain-name-rule))
-  (:documentation "Error raised if an URI rule cannot be found."))

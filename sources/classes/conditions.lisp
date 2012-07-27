@@ -23,40 +23,30 @@
 ;;; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;; SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(cl:in-package :cl-user)
+(cl:in-package :cl-chessire-cat)
 
-(defpackage cl-chessire-cat
-  (:nicknames chessire chessire-cat cl-cc)
-  (:documentation "Chessire Cat (HTTP Redirection Server) main package")
-  (:use #:cl #:split-sequence)
-  (:import-from #:alexandria
-                #:emptyp #:deletef
-                #:starts-with-subseq #:ends-with-subseq
-                #:curry #:compose
-                #:symbolicate #:ensure-symbol #:make-keyword
-                #:once-only #:when-let
-                )
-  (:import-from #:cl-store
-                #:defstore-cl-store #:defrestore-cl-store
-                #:store-object #:restore-object
-                #:register-code #:output-type-code
-                #:*check-for-circs*
-                #:store #:restore
-                )
-  (:import-from #:cl-ppcre #:create-scanner #:regex-replace #:scan)
-  (:import-from #:usocket #:host-byte-order)
-  (:import-from #:hunchentoot
-                #:acceptor
-                #:acceptor-dispatch-request #:acceptor-error-template-directory
+(define-condition rs-error (error) ()
+  (:documentation "Root condition for redirection server errors."))
 
-                #:*request* #:host #:script-name* #:remote-addr*
-                #:post-parameter #:get-parameter #:get-parameters* #:post-parameters*
+(define-condition rs-loop-detected (rs-error) ()
+  (:documentation "Error raised if a loop is detected by the redirection
+    engine. If not caught, this loop will make the server reply with a \"404 Not
+    Found\"."))
 
-                #:content-type* #:return-code* #:*reply*
+(define-condition rs-no-such-qs-update (rs-error)
+  ((operation :reader qsu-operation :initarg :operation)
+   (name      :reader qsu-name      :initarg :name :initform nil)
+   (match     :reader qsu-match     :initarg :match :initform nil))
+  (:documentation "Error raised if a query string update cannot be found."))
 
-                #:url-encode #:redirect #:abort-request-handler
+(define-condition rs-no-such-rule (rs-error)
+  ((kind  :reader rr-kind  :initarg :kind)
+   (match :reader rr-match :initarg :match))
+  (:documentation "Error raised if a rule cannot be found."))
 
-                #:+http-bad-request+ #:+http-not-found+
-                #:+http-forbidden+ #:+http-moved-permanently+
-                )
-  (:export #:redirection-acceptor #:load-rules))
+(define-condition rs-no-such-domain-rule (rs-no-such-rule) ()
+  (:documentation "Error raised if a domain name rule cannot be found."))
+
+(define-condition rs-no-such-uri-rule (rs-no-such-rule)
+  ((domain-name-rule :accessor urr-domain-name-rule :initarg :domain-name-rule))
+  (:documentation "Error raised if an URI rule cannot be found."))

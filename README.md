@@ -207,6 +207,66 @@ Currently, the only parameter supported is `http-code` and its default value is
 will be the one used in the answer sent to the client. The behavior is
 unspecified if an invalid status code specification is given.
 
+## Query string manipulation
+
+Each rule can be given a list of query string manipulation to do. These
+operations are run before any rewritting occurs.
+
+There are 5 operations which can be exectued on the list of get parameters:
+
+The default behaviour is to leave the query string unmodified.
+
+### Clear
+
+The first operation is the basic clearing of the whole query string in order to
+have a fresh start. Any operation executed before that one will be without
+effect.
+
+### Add
+
+You can choose to add any get parameter to the URL. If the parameter already
+exists, it will be twice in the query string, which may create unexpected
+behaviour on the other side of the redirection.
+
+The new parameter's value can be:
+
+ * a constant string your giving to the operation
+ * the path of the query (before rewritting)
+ * the domain name of the query (before rewritting)
+
+Parameters:
+
+ * `name`: the name of the paramter you will create
+ * `value`: the value of the parameter (a string, `:path` or `:domain`)
+
+### Delete
+
+Of course, if you can add, you can delete.
+
+Parameter:
+
+ * `name`: the name of the parameter to delete
+
+### Update (the value)
+
+The value update is performed by applying a regular expression substitution to
+the value of the parameter.
+
+Parameters:
+
+ * `name`: the name of the parameter to update
+ * `match`: the regular expression used to match the old value
+ * `replacement`: the replacement string used to defini the new value
+
+### Rename
+
+Often, it's easier to rename a parameter than delete and re-create it.
+
+Parameters:
+
+ * `name`: the old name of the parameter
+ * `new-name`: the new name of the parameter
+
 # Management
 
 Management options can be setup when creating the server.
@@ -360,6 +420,17 @@ POST parameters (all optional):
   * `new-http-code`: The new HTTP Status code to be used for this rule
     redirection from now on.
 
+### Update the query string operations
+
+The query string operations management is in the "folder"
+`/query-string-updates/`. See Query string operation management for the details.
+
+When applied to domain name rule, all these operations have two common GET
+parameters:
+
+ * `domain-name-kind`: The kind of the domain name rule.
+ * `domain-name-match`: The match spec of the domain name rule.
+
 ## URI rule management
 
 The URI rule management operations are in the "folder"
@@ -464,6 +535,102 @@ POST parameters (all optional):
   * `new-http-code`: The new HTTP Status code to be used for this rule
     redirection from now on.
 
+### Update the query string operations
+
+The query string operations management is in the "folder"
+`/query-string-updates/`. See Query string operation management for the details.
+
+When applied to domain name rule, all these operations have two more common GET
+parameters:
+
+ * `uri-kind`: The kind of the domain name rule.
+ * `uri-match`: The match spec of the domain name rule.
+
+## Query string operations management
+
+Query string management is currently very simple.
+
+### List query string operations
+
+Path: `/list`
+
+GET parameters (all optionals):
+
+ * `operation`: The operation filter of the domain rule key (should be one of
+   `clear`, `add`, `delete`, `update` or `rename`).
+ * Any combination of `name`, `new-name`, `match`, `replacement`: a regex on the
+   corresponding field.
+
+Returns the list of query string operations matching the parameters. If a
+criteria is omitted all rules will match this criteria.
+
+Example:
+
+```
+GET /domain-name-rule/query-string-updates/list?domain-name-kind=exact&domain-name-match=www.domain.example&operation=clear HTTP/1.1
+Host: management.invalid
+```
+
+### Add a query string operation
+
+Path: `/add`
+
+POST parameters:
+
+ * `operation`: The operation filter of the domain rule key (should be one of
+   `clear`, `add`, `delete`, `update` or `rename`).
+ * Any combination of `name`, `new-name`, `match`, `replacement` which is valid
+   for this operation.
+ * `position` (optional): Position at which the operation will be inserted in
+   the operation list. If none is provided, the operation is inserted at the
+   beginning of the list.
+
+When you create an `add` operation, you should provide one of the following
+parameters (they are mutually exclusive):
+
+ * `value`: Its value is the value that will be given to the new GET parameter
+ * `path-as-value`: If present, the path will be used as value for the new GET
+   parameter
+ * `domain-as-value`: If present, the domain name will be used as value for the
+   new GET parameter
+
+Example:
+
+```
+POST /uri-rule/query-string-updates/add?domain-name-kind=exact&domain-name-match=www.domain.example&uri-name=%2Ffoobar%2F&uri-kind=prefix HTTP/1.1
+Host: management.invalid
+Content-type: application/x-www-form-urlencoded
+
+operation=add&name=redirect-from&domain-as-value=t
+```
+
+### Remove a query string operation
+
+Path: `/remove`
+
+GET parameters:
+
+ * `operation`: The kind of the rule.
+ * `name`: The name of the query parameter on which the operation is applied.
+ * `match`: The match specification used in a query string update operation.
+
+If `name` or `match` is not supported by the operation you want to delete, you
+must omit them.
+
+POST parameter:
+
+ * `confirmed`: This parameter must be non-nil.
+
+Example:
+
+```
+POST /uri-rule/query-string-updates/remove?domain-name-kind=exact&domain-name-match=www.domain.example&uri-name=%2Ffoobar%2F&uri-kind=prefix&operation=rename&name=domain-name-match HTTP/1.1
+Host: management.invalid
+Content-type: application/x-www-form-urlencoded
+
+confirmed=OK
+```
+
 # Data Storage
 
 The data are stored in memory by a hierarchy of classes, check `redirection-rule`
@@ -475,8 +642,6 @@ and subclasses.
    package/project (TODO).
 
  * No current provision for redirecting to another port or protocol (TODO).
-
- * No query string support (TODO).
 
  * Because of the inherent multiple domain names property of the project,
   Chessire supports only HTTP, no HTTPS now or in the forseenable future is
