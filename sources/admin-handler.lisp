@@ -33,7 +33,7 @@
             (starts-with-subseq "new-" name)
           (when (not match-p)
             (send-bad-request (format nil "Invalid update specification (~A).~%Update specification should be of the form: \"new-{ATTRIBUTE}\"={NEW-VALUE}." name)))
-          (let* ((accessor-symbol (ensure-symbol (string-upcase (concatenate 'string "rr-" attribute-name)) :redirection-server))
+          (let* ((accessor-symbol (ensure-symbol (string-upcase (concatenate 'string "rr-" attribute-name)) :cl-chessire-cat))
                  (writer          (fdefinition `(setf ,accessor-symbol)))
                  (new-value       (case accessor-symbol
                                     ((rr-kind)      (make-keyword (string-upcase new-value)))
