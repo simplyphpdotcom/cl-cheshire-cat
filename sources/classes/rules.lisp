@@ -105,30 +105,26 @@ updating the <pre>matcher</pre> slot."
   "This function returns the pair (kind match) for this rule."
   (list (rr-kind rule) (rr-match rule)))
 
-(defgeneric rr-summary (rule)
+(defgeneric rr-summary (rule &key serialize)
   (:documentation "This method converts the redirection rule to the list (kind
   match replacement . options)")
-  (:method (rule)
+  (:method (rule &key serialize)
     "This method converts the redirection rule to the list (kind match
 replacement http-code)"
-    (list (rr-kind rule)
-          (rr-match rule)
-          (rr-replacement rule)
-          (rr-http-code rule)
-          (rr-protocol rule)
-          (rr-port rule))))
+    (list* (rr-kind        rule)
+           (rr-match       rule)
+           (rr-replacement rule)
+           (rr-http-code   rule)
+           (rr-protocol    rule)
+           (rr-port        rule)
+           (when serialize
+             (list (rr-qs-updates rule))))))
 
 (defmethod print-object ((object redirection-rule) stream)
   "Print a meaningful summarized representation of redirection
 rules. Redirection rules are not readably printable."
   (print-unreadable-object (object stream :type t)
     (write (rr-summary object) :stream stream)))
-
-(defun unsummarize-redirection-rule% (kind match replacement http-code protocol port)
-  "Return the list of arguments to give to make-instance to recreate a similar
-redirection-rule."
-  (list :kind kind :match match :replacement replacement
-        :http-code http-code :protocol protocol :port port))
 
 (defun redirection-rule= (rule1 rule2 &rest rules)
   "This function checks whether two redirection rules are equals."
@@ -186,11 +182,17 @@ returned values."
 (defstore-cl-store (rule uri-redirection-rule stream)
   (let ((*check-for-circs* nil))
     (output-type-code +uri-redirection-rule-code+ stream)
-    (store-object (rr-summary rule) stream)))
+    (store-object (rr-summary rule :serialize t) stream)))
 
 (defrestore-cl-store (uri-redirection-rule stream)
-  (apply #'make-instance 'uri-redirection-rule
-         (apply #'unsummarize-redirection-rule% (restore-object stream))))
+  (destructuring-bind (kind match replacement http-code protocol port qsus)
+      (restore-object stream)
+    (let* ((rule (make-instance 'uri-redirection-rule
+                                :kind kind :match match :replacement replacement
+                                :http-code http-code
+                                :protocol protocol :port port)))
+      (setf (rr-qs-updates rule) qsus)
+      rule)))
 
 (defclass domain-redirection-rule (redirection-rule)
   ((uri-rules :accessor drr-uri-rules :initform nil
@@ -198,6 +200,12 @@ returned values."
               :documentation "List of URI redirection rules for the domain names
               matching this redirection rule."))
   (:documentation "Class for redirection rules applied to domain names."))
+
+(defmethod rr-summary ((rule domain-redirection-rule) &key serialize)
+  "This method adds the list of uri rules in the case of serialization."
+  (nconc (call-next-method)
+         (when serialize
+           (list (drr-uri-rules rule)))))
 
 (defmethod resolve-rr-matcher ((rule domain-redirection-rule))
   "This function updates the <pre>matcher</pre> slot for a domain name redirection rule."
@@ -226,11 +234,18 @@ returned values."
 (defstore-cl-store (rule domain-redirection-rule stream)
   (let ((*check-for-circs* nil))
     (output-type-code +domain-redirection-rule-code+ stream)
-    (store-object (rr-summary rule) stream)))
+    (store-object (rr-summary rule :serialize t) stream)))
 
 (defrestore-cl-store (domain-redirection-rule stream)
-  (apply #'make-instance 'domain-redirection-rule
-         (apply #'unsummarize-redirection-rule% (restore-object stream))))
+  (destructuring-bind (kind match replacement http-code protocol port qsus uri-rules)
+      (restore-object stream)
+    (let* ((rule (make-instance 'uri-redirection-rule
+                                :kind kind :match match :replacement replacement
+                                :http-code http-code
+                                :protocol protocol :port port)))
+      (setf (rr-qs-updates rule) qsus
+            (drr-uri-rules rule) uri-rules)
+      rule)))
 
 (defun drr-is-loop-p (drr &key error-p)
   "Check if the domain name rule effect is empty, thus resulting in a loop."
