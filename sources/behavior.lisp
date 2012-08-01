@@ -127,7 +127,10 @@ found. if <pre>error-p</pre> is true, an error of type
   (multiple-value-bind (match-p new-domain)
       (rr-matching-p +default-domain-name-rule+ domain-name)
     (if match-p
-        (values new-domain (rr-http-code +default-domain-name-rule+))
+        (values new-domain
+                (rr-http-code +default-domain-name-rule+)
+                (rr-protocol  +default-domain-name-rule+)
+                (rr-port      +default-domain-name-rule+))
         (error 'rs-loop-detected))))
 
 (defun apply-rules (target-string rules)
@@ -174,12 +177,18 @@ list (new-domain-name new-uri . redirection-parameters)"
                         new-uri
                         (merge-redirection-parameter (rr-http-code domain-redirection-rule)
                                                      (rr-http-code uri-rule))
+                        (merge-redirection-parameter (rr-protocol domain-redirection-rule)
+                                                     (rr-protocol uri-rule))
+                        (merge-redirection-parameter (rr-port domain-redirection-rule)
+                                                     (rr-port uri-rule))
                         (append (rr-qs-updates domain-redirection-rule)
                                 (rr-qs-updates uri-rule)))
                   (list new-domain
                         uri
                         (rr-http-code domain-redirection-rule)
+                        (rr-protocol  domain-redirection-rule)
+                        (rr-port      domain-redirection-rule)
                         (rr-qs-updates domain-redirection-rule)))))
-        (multiple-value-bind (new-domain http-code)
+        (multiple-value-bind (new-domain http-code protocol port)
             (apply-default-domain-name-rule domain-name)
-          (list new-domain uri http-code)))))
+          (list new-domain uri http-code protocol port)))))

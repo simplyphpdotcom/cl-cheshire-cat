@@ -51,6 +51,14 @@
                          :documentation "The HTTP Status Code sent when this
                          rule is applied. Can be overwritten by a subsequent
                          rule."  )
+   (protocol             :accessor rr-protocol    :initarg protocol :initform :http
+                         :type (member :http :https)
+                         :documentation "The protocol to use after
+                         redirection (HTTP or HTTPS)")
+   (port                 :accessor rr-port        :initarg port :initform nil
+                         :type (or null unsigned-byte)
+                         :documentation "Port to use for the
+                         redirection. Default depends on the protocol")
    (query-string-updates :accessor rr-qs-updates  :initform '()
                          :type list
                          :documentation "List of query string update performed
@@ -106,7 +114,9 @@ replacement http-code)"
     (list (rr-kind rule)
           (rr-match rule)
           (rr-replacement rule)
-          (rr-http-code rule))))
+          (rr-http-code rule)
+          (rr-protocol rule)
+          (rr-port rule))))
 
 (defmethod print-object ((object redirection-rule) stream)
   "Print a meaningful summarized representation of redirection
@@ -114,10 +124,11 @@ rules. Redirection rules are not readably printable."
   (print-unreadable-object (object stream :type t)
     (write (rr-summary object) :stream stream)))
 
-(defun unsummarize-redirection-rule% (kind match replacement http-code)
+(defun unsummarize-redirection-rule% (kind match replacement http-code protocol port)
   "Return the list of arguments to give to make-instance to recreate a similar
 redirection-rule."
-  `(:kind ,kind :match ,match :replacement ,replacement :http-code ,http-code))
+  (list :kind kind :match match :replacement replacement
+        :http-code http-code :protocol protocol :port port))
 
 (defun redirection-rule= (rule1 rule2 &rest rules)
   "This function checks whether two redirection rules are equals."

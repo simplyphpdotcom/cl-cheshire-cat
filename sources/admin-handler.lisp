@@ -38,7 +38,9 @@
                  (new-value       (case accessor-symbol
                                     ((rr-kind)      (make-keyword (string-upcase new-value)))
                                     ((rr-http-code) (parse-integer-or-nil new-value))
-                                    (t             new-value))))
+                                    ((rr-protocol)  (make-keyword (string-upcase new-value)))
+                                    ((rr-port)      (parse-integer-or-nil new-value))
+                                    (t              new-value))))
             (funcall writer new-value rule)))))
 
 (defun admin-domain-name-rules-handler% (path redirection-acceptor)

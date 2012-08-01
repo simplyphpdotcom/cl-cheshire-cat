@@ -200,12 +200,27 @@ of the original URI.
 
 Each redirection specification can also include redirection parameters.
 
-Currently, the only parameter supported is `http-code` and its default value is
-302.
+### HTTP Status Code
+
+The first parameter supported is `http-code` and its default value is 302.
 
 `http-code` must be one of 300, 301, 302 (default), 303 or 307. This status code
 will be the one used in the answer sent to the client. The behavior is
 unspecified if an invalid status code specification is given.
+
+### HTTP/HTTPS Protocol
+
+The second parameter is `protocol` and its default value is `http`.
+
+`protocol` must be one of `http` or `https` and it is the protocol that will be
+used as the redirection target.
+
+### Port
+
+The third and last parameter is `port` and its default depends on the value of
+`protocol` (443 if `protocol` is `https`, 80 otherwise).
+
+`port` must be a valid port number (i.e. an integer between 1 and 63565).
 
 ## Query string manipulation
 
@@ -640,8 +655,6 @@ and subclasses.
 
  * The implementation restricted part should be extracted away in another
    package/project (TODO).
-
- * No current provision for redirecting to another port or protocol (TODO).
 
  * Because of the inherent multiple domain names property of the project,
   Chessire supports only HTTP, no HTTPS now or in the forseenable future is
