@@ -653,6 +653,9 @@ and subclasses.
 
 # Limitations
 
+ * The backup facility should be set safer so Chessire cannot rewrite arbitrary
+   files on the server by accident (TODO).
+
  * The implementation restricted part should be extracted away in another
    package/project (TODO).
 
@@ -661,6 +664,15 @@ and subclasses.
   planned.
 
  * No offline rule management.
+
+## Note regarding the backup facility TODO
+
+This is not seen as a major security issue because:
+
+ * The management operations should be protected by (at least) IP access (and
+   HTTP is over TCP which should make IP spoofing hard enough).
+
+ * Most important: chessire should be always run with restricted privileges.
 
 # License
 
