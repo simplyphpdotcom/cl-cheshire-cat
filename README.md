@@ -11,6 +11,17 @@ in particular:
 The persistence layer is ensured using CL-STORE
 (http://common-lisp.net/project/cl-store).
 
+# Installation
+
+The recommended way to install chessire is by using quicklisp as much as
+possible:
+
+ 1. Using quicklisp, you can install:
+  * hunchentoot
+  * cl-store
+  * split-sequence
+ 2. You need to manually install sb-daemon
+
 # How to use
 
 The recommended usage requires you to use SBCL (and optionnaly swank) and is
