@@ -25,8 +25,8 @@
 
 (cl:in-package :asdf)
 
-(defsystem "cl-chessire-cat"
-  :description "Chessire Cat HTTP Redirection Server"
+(defsystem "cl-cheshire-cat"
+  :description "Cheshire Cat HTTP Redirection Server"
   :version     "0.1"
   :author      "Mathieu Lemoine <mlemoine@mentel.com>, Mentel Inc."
   :licence     "3-clause BSD"

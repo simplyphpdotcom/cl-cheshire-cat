@@ -23,7 +23,7 @@
 ;;; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;; SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(cl:in-package :cl-chessire-cat)
+(cl:in-package :cl-cheshire-cat)
 
 (defclass query-string-update ()
   ()
@@ -32,7 +32,7 @@
 (defun class<-qsu-operation (operation)
   "Returns the class corresponding to this query-string operation."
   (let ((qsu-class-name (ensure-symbol (string-upcase (concatenate 'string "qs-" (symbol-name operation)))
-                                       :cl-chessire-cat)))
+                                       :cl-cheshire-cat)))
     (find-class qsu-class-name)))
 
 (defun qsu-operation<-class (class)

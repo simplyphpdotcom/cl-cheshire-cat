@@ -1,6 +1,6 @@
 # Summary
 
-cl-chessire-cat is a project for a CL redirection server.
+cl-cheshire-cat is a project for a CL redirection server.
 
 The core of the server is based on Edi Weitz (http://weitz.de/) CL librairies,
 in particular:
@@ -13,7 +13,7 @@ The persistence layer is ensured using CL-STORE
 
 # Installation
 
-The recommended way to install chessire is by using quicklisp as much as
+The recommended way to install cheshire is by using quicklisp as much as
 possible:
 
  1. Using quicklisp, you can install:
@@ -27,45 +27,45 @@ possible:
 The recommended usage requires you to use SBCL (and optionnaly swank) and is
 divided in a three component process:
 
- 1. The `chessire.sh` script which is responsible for daemon management
+ 1. The `cheshire.sh` script which is responsible for daemon management
  operations.
- 2. The `chessire.lisp` script which is responsible for loading and
- starting the chessire daemon.
+ 2. The `cheshire.lisp` script which is responsible for loading and
+ starting the cheshire daemon.
  3. The daemon itself.
 
 You are encouraged to modify and adapt the first two component in the way most
-convinient to your own use of the Chessire.
+convinient to your own use of the Cheshire.
 
 As mentionned, the default process is dependent on SBCL. However we would like
-Chessire to be compatible with as many CL distributions as possible. Any
+Cheshire to be compatible with as many CL distributions as possible. Any
 adaptation of the starting process be compatible with a different CL
 distribution is welcome.
 
-## chessire.sh
+## cheshire.sh
 
-The daemon operations are performed using `scripts/chessire.sh`. The
+The daemon operations are performed using `scripts/cheshire.sh`. The
 first argument of the script is either `start`, `stop`, `restart` or `status`
 and makes the script perform the appropriate action. The script should always be
 executed as root.
 
 The second argument is expected to be a configuration file. If none is given,
-`/etc/chessire.conf` is the default configuration file.
+`/etc/cheshire.conf` is the default configuration file.
 
-chessire.sh is looking for a `pidfile=` entry in the configuration
-file. If there is no such entry, `/var/run/chessire.pid` is used.
+cheshire.sh is looking for a `pidfile=` entry in the configuration
+file. If there is no such entry, `/var/run/cheshire.pid` is used.
 
-The required action is then performed by `chessire.sh`. If it needs to run the
-server, it assumes that `scripts/chessire.lisp` is located as
-`/usr/share/chessire/scripts/chessire.lisp` unless it finds a `system=`
+The required action is then performed by `cheshire.sh`. If it needs to run the
+server, it assumes that `scripts/cheshire.lisp` is located as
+`/usr/share/cheshire/scripts/cheshire.lisp` unless it finds a `system=`
 directive in the configuration file.
 
-## chessire.lisp
+## cheshire.lisp
 
-`chessire.lisp` is loading the configuration file and starting the
-daemon. (Please refer to `config/chessire.conf` for the details of the
-documentation). `chessire.lisp` expects the configuration file as its
-first command-line argument and assumes that the cl-chessire-cat system is
-loadable via `(asdf:load-system "cl-chessire-cat")`.
+`cheshire.lisp` is loading the configuration file and starting the
+daemon. (Please refer to `config/cheshire.conf` for the details of the
+documentation). `cheshire.lisp` expects the configuration file as its
+first command-line argument and assumes that the cl-cheshire-cat system is
+loadable via `(asdf:load-system "cl-cheshire-cat")`.
 
 The starting process includes:
 
@@ -73,7 +73,7 @@ The starting process includes:
  2. daemon bookeeping (debugging, dropping privileges, swank loading)
  4. loading the redirection rules
 
-The privileges are dropped after Chessire started listening. This is a
+The privileges are dropped after Cheshire started listening. This is a
 limitation from usocket and hunchentoot. This means:
 
  * you should not have any problem listening directly on the 80 port (or any
@@ -85,11 +85,11 @@ limitation from usocket and hunchentoot. This means:
 
 ## Customization 
 
-If the recommended usage does not fit your use of Chessire, feel free to adapt
+If the recommended usage does not fit your use of Cheshire, feel free to adapt
 any of the previously described steps. They are made to be highly and easily
 customizable.
 
-Note that the debugging bookeeping step in `chessire.lisp` is provided for
+Note that the debugging bookeeping step in `cheshire.lisp` is provided for
 convinience. If you skip this part, Hunchentoot defaults will be used:
 
  * the debugger will never be called in case of an error
@@ -113,7 +113,7 @@ additional `www.` prefix to domain name. If the domain name already starts with
 `www.`, the server will return a "404 Not Found" error in order to avoid
 redirection loop.
 
-If a domain name rule matched, Chessire then search its list of URI rule to
+If a domain name rule matched, Cheshire then search its list of URI rule to
 apply any addition URI modification. If there is no URI matching rule and no
 domain rewritting in effect, the server will return a "404 Not Found" error in
 order to prevent redirection loops.
@@ -122,16 +122,16 @@ Domain name rules parameters are used as default for its associated URI rules.
 
 The loop protections intend to protect you from mild obvious rule specification
 errors. Their goal is not to prevent willingful redirection loops or
-mischievious configurations. For example it is easy to trick Chessire into
+mischievious configurations. For example it is easy to trick Cheshire into
 issuing infinite redirection loops with a domain name rule with no URI rule, key
 `(:exact "www.domain.example")` and replacement `"www.domain.example"`. In other
 words you are responsible for the correctness of your redirection
-rules. Chessire will not check them for you and there is no plan to do so in the
+rules. Cheshire will not check them for you and there is no plan to do so in the
 future.
 
 ## Unspecified behavior
 
-Since Chessire intends to be a production-grade product, we made our best to
+Since Cheshire intends to be a production-grade product, we made our best to
 keep unspecified behavior implementation on a fail-early and safe basis.
 
 For example, if you provide an invalid argument for a rule specification, we try
@@ -139,7 +139,7 @@ to fail and send an error message when you create or update the rule rather than
 at apply time.
 
 However, this behavior may not be always easy to have, don't forget that
-unspecified behaviour is still unspecified and may make Chessire to crash on
+unspecified behaviour is still unspecified and may make Cheshire to crash on
 each and every request it receives.
 
 # Rules
@@ -309,7 +309,7 @@ IPv4 address (either a string in dotted notation `"127.0.0.1"` or a vector of
 four integers in host order `#(127 0 0 1)`). The second is the prefix-length of
 the CIDR block. If the second part is missing, its default value is 32.
 
-The recommended tool to manage Chessire is [curl](curl.haxx.se) or another low
+The recommended tool to manage Cheshire is [curl](curl.haxx.se) or another low
 level HTTP or TCP tool such as nc(1) or telnet(1).
 
 The management API is splited in three parts:
@@ -328,7 +328,7 @@ Each operation is specified using three mecanisms:
 
 Global management operations are impacting the behavior of the whole server.
 
-Currently, Chessire supports only one global management operation: `/save-rules`
+Currently, Cheshire supports only one global management operation: `/save-rules`
 
 This operation accepts one optional POST parameter: `file` which is the
 path to the file in which the rules will be stored. If the parameter is not
@@ -336,7 +336,7 @@ provided, the file used is the one specified for the `rules_file` configuration.
 
 There is currently no check or security restriction on the path used the save
 the files. It is your responsibility to ensure that the file is really the one
-you want and to provide Chessire with an adequat privilege level.
+you want and to provide Cheshire with an adequat privilege level.
 
 Example:
 
@@ -345,7 +345,7 @@ POST /safe-rules HTTP/1.1
 Host: management.invalid
 Content-type: application/x-www-form-urlencoded
 
-file=%2Fchessire-bkp%2Fmy-bkp.crr
+file=%2Fcheshire-bkp%2Fmy-bkp.crr
 ```
 
 ## Domain name rule management
@@ -664,14 +664,14 @@ and subclasses.
 
 # Limitations
 
- * The backup facility should be set safer so Chessire cannot rewrite arbitrary
+ * The backup facility should be set safer so Cheshire cannot rewrite arbitrary
    files on the server by accident (TODO).
 
  * The implementation restricted part should be extracted away in another
    package/project (TODO).
 
  * Because of the inherent multiple domain names property of the project,
-  Chessire supports only HTTP, no HTTPS now or in the forseenable future is
+  Cheshire supports only HTTP, no HTTPS now or in the forseenable future is
   planned.
 
  * No offline rule management.
@@ -683,7 +683,7 @@ This is not seen as a major security issue because:
  * The management operations should be protected by (at least) IP access (and
    HTTP is over TCP which should make IP spoofing hard enough).
 
- * Most important: chessire should be always run with restricted privileges.
+ * Most important: cheshire should be always run with restricted privileges.
 
 # License
 

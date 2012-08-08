@@ -23,7 +23,7 @@
 ;;; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;; SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(cl:in-package :cl-chessire-cat)
+(cl:in-package :cl-cheshire-cat)
 
 (defclass redirection-rule ()
   ((kind                 :accessor rr-kind        :initarg :kind

@@ -25,9 +25,9 @@
 
 (cl:in-package :cl-user)
 
-(defpackage cl-chessire-cat
-  (:nicknames chessire chessire-cat cl-cc)
-  (:documentation "Chessire Cat (HTTP Redirection Server) main package")
+(defpackage cl-cheshire-cat
+  (:nicknames cheshire cheshire-cat cl-cc)
+  (:documentation "Cheshire Cat (HTTP Redirection Server) main package")
   (:use #:cl #:split-sequence)
   (:import-from #:alexandria
                 #:emptyp #:deletef

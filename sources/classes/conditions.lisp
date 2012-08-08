@@ -23,7 +23,7 @@
 ;;; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;; SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(cl:in-package :cl-chessire-cat)
+(cl:in-package :cl-cheshire-cat)
 
 (define-condition rs-error (error) ()
   (:documentation "Root condition for redirection server errors."))

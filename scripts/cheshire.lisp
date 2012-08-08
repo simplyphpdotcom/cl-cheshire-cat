@@ -29,13 +29,13 @@
 (asdf:load-system :py-configparser)
 (use-package :py-configparser)
 
-(defparameter *chessire-config* (make-config)
-  "Chessire configuration holder")
+(defparameter *cheshire-config* (make-config)
+  "Cheshire configuration holder")
 
-(read-files *chessire-config* `(,(or (nth 1 sb-ext:*posix-argv*)
-                                     "/etc/chessire.conf")))
+(read-files *cheshire-config* `(,(or (nth 1 sb-ext:*posix-argv*)
+                                     "/etc/cheshire.conf")))
 
-(defun get-chessire-config (option-name &key (section-name "Chessire") default-value (type :string) (config *chessire-config*))
+(defun get-cheshire-config (option-name &key (section-name "Cheshire") default-value (type :string) (config *cheshire-config*))
   "Try to find the option in this section for this config. Type may be one
 of :boolean, :integer or :string. Two values are returned: The value of the
 option (or the default value if the option was not found) and whether the option
@@ -50,57 +50,57 @@ was found or not."
        t)
       default-value))
 
-;; Load and start Chessire
-(asdf:load-system :cl-chessire-cat)
-(use-package :chessire)
+;; Load and start Cheshire
+(asdf:load-system :cl-cheshire-cat)
+(use-package :cheshire)
 
-(defparameter *chessire*
+(defparameter *cheshire*
   (make-instance 'redirection-acceptor
-                 :port           (get-chessire-config "port"          :default-value 80   :type :integer)
-                 :address        (get-chessire-config "address"       :default-value "0.0.0.0")
-                 :admin-allowed (chessire::parse-cidr-list
-                                 (get-chessire-config "admin_allowed" :default-value "127.0.0.1"))
-                 :admin-host     (get-chessire-config "admin_host"    :default-value "management.invalid"))
-  "Chessire cat acceptor")
+                 :port           (get-cheshire-config "port"          :default-value 80   :type :integer)
+                 :address        (get-cheshire-config "address"       :default-value "0.0.0.0")
+                 :admin-allowed (cheshire::parse-cidr-list
+                                 (get-cheshire-config "admin_allowed" :default-value "127.0.0.1"))
+                 :admin-host     (get-cheshire-config "admin_host"    :default-value "management.invalid"))
+  "Cheshire cat acceptor")
 
 ;; debugging bookeeping
 (setq hunchentoot:*show-lisp-errors-p* t)
 
-(defparameter *chessire-debugp* (get-chessire-config "debug" :type :boolean))
-(if *chessire-debugp*
+(defparameter *cheshire-debugp* (get-cheshire-config "debug" :type :boolean))
+(if *cheshire-debugp*
     (setq hunchentoot:*show-lisp-backtraces-p* t
           hunchentoot:*catch-errors-p* nil)
     (setq hunchentoot:*show-lisp-backtraces-p* nil
           hunchentoot:*catch-errors-p* t))
 
-(hunchentoot:start *chessire*)
+(hunchentoot:start *cheshire*)
 
-;; Daemonize Chessire
+;; Daemonize Cheshire
 #+sbcl (asdf:load-system :sb-daemon)
-(when (get-chessire-config "daemonize" :section-name "daemon" :type :boolean)
+(when (get-cheshire-config "daemonize" :section-name "daemon" :type :boolean)
   #+sbcl
   (sb-daemon:daemonize :exit-parent t
-                       :pidfile (get-chessire-config "pid_file"  :section-name "daemon" :default-value "/var/run/chessire.pid")
-                       :output  (get-chessire-config "log"       :section-name "daemon")
-                       :error   (get-chessire-config "error_log" :section-name "daemon")
-                       :user    (get-chessire-config "user"      :section-name "daemon")
-                       :group   (get-chessire-config "group"     :section-name "daemon")
-                       :disable-debugger (not *chessire-debugp*))
+                       :pidfile (get-cheshire-config "pid_file"  :section-name "daemon" :default-value "/var/run/cheshire.pid")
+                       :output  (get-cheshire-config "log"       :section-name "daemon")
+                       :error   (get-cheshire-config "error_log" :section-name "daemon")
+                       :user    (get-cheshire-config "user"      :section-name "daemon")
+                       :group   (get-cheshire-config "group"     :section-name "daemon")
+                       :disable-debugger (not *cheshire-debugp*))
   #-sbcl
   (error "Daemonize facility is supported only using SBCL and sb-daemon. Any compatibility improvment patch is welcome."))
 
 ;; Start swank server if requested
-(when (get-chessire-config "enable" :section-name "swank" :type :boolean)
+(when (get-cheshire-config "enable" :section-name "swank" :type :boolean)
   (asdf:load-system :swank)
   (defparameter *swank-server*
-    (swank:create-server :port (get-chessire-config "port" :section-name "swank" :type :integer)
+    (swank:create-server :port (get-cheshire-config "port" :section-name "swank" :type :integer)
                          :coding-system "utf-8-unix"
                          :dont-clost t)))
 
 ;; Load redirection rules
-(let ((rules-file (get-chessire-config "rules_file")))
+(let ((rules-file (get-cheshire-config "rules_file")))
   (when rules-file
-    (load-rules *chessire* rules-file)))
+    (load-rules *cheshire* rules-file)))
 
 ;; Sleeping loop
 (loop (sleep 10))

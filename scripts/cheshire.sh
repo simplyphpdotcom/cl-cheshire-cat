@@ -26,16 +26,16 @@
 ## SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ### BEGIN INIT INFO
-# Provides:          chessire
+# Provides:          cheshire
 # Required-Start:    $local_fs $remote_fs $network $syslog $named
 # Required-Stop:     $local_fs $remote_fs $network $syslog $named
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: Start chessire redirection server
+# Short-Description: Start cheshire redirection server
 ### END INIT INFO
 
 op="$1"
-config_file="${2:-/etc/chessire.conf}"
+config_file="${2:-/etc/cheshire.conf}"
 
 lisp="sbcl"
 
@@ -45,8 +45,8 @@ then
     system_file="$(grep -E '^system=' "${config_file}" | cut -d '=' -f 2)"
 fi
 
-[ -z "${pid_file}" ] && pid_file="/var/run/chessire.pid"
-[ -z "${system_file}" ] && system_file="/usr/share/chessire/scripts/chessire.lisp"
+[ -z "${pid_file}" ] && pid_file="/var/run/cheshire.pid"
+[ -z "${system_file}" ] && system_file="/usr/share/cheshire/scripts/cheshire.lisp"
 
 case "${op}" in
     start)
@@ -55,39 +55,39 @@ case "${op}" in
             pid="$(cat "${pid_file}")"
             if [ -n "${pid}" ] && ps -p "${pid}" > /dev/null
             then
-                echo "Chessire ${pid} is already grinning." >&2
+                echo "Cheshire ${pid} is already grinning." >&2
                 echo "If this is not true, please remove or truncate the file ${pid_file}." >&2
                 exit 1
             fi
         fi
-        echo "Tickling Chessire using ${system_file}..."
+        echo "Tickling Cheshire using ${system_file}..."
         env "${lisp}" --script "${system_file}" "${config_file}"
         ;;
     stop)
         if [ ! -r "${pid_file}" ]
         then
-            echo "Chessire already disapeared: no pid file." >&2
+            echo "Cheshire already disapeared: no pid file." >&2
             exit 0
         fi
         pid="$(cat "${pid_file}")"
         if [ -z "${pid}" ]
         then
-            echo "Chessire already disapeared: no pid." >&2
+            echo "Cheshire already disapeared: no pid." >&2
             exit 0
         fi
-        echo "Shushing Chessire ${pid}..."
+        echo "Shushing Cheshire ${pid}..."
         kill "${pid}"
         ;;
     force-stop)
         if [ ! -r "${pid_file}" ]
         then
-            echo "Chessire already disapeared: no pid file." >&2
+            echo "Cheshire already disapeared: no pid file." >&2
             exit 0
         fi
         pid="$(cat "${pid_file}")"
         if [ -z "${pid}" ]
         then
-            echo "Chessire already disapeared: no pid." >&2
+            echo "Cheshire already disapeared: no pid." >&2
             exit 0
         fi
         echo "Off with its head! (${pid})"
@@ -99,17 +99,17 @@ case "${op}" in
             pid="$(cat "${pid_file}")"
             if [ -n "${pid}" ] && ps -p "${pid}" > /dev/null
             then
-                echo "Shushing Chessire ${pid}..."
+                echo "Shushing Cheshire ${pid}..."
                 kill "${pid}"
             fi
         fi
         sleep 2
         if ! ps -p "${pid}" > /dev/null
         then
-            echo "Chessire ${pid} is still grinning (but may be disapearing)." >&2
+            echo "Cheshire ${pid} is still grinning (but may be disapearing)." >&2
             exit 1
         fi
-        echo "Tickling Chessire using ${system_file}"
+        echo "Tickling Cheshire using ${system_file}"
         env "${lisp}" --script "${system_file}" "${config_file}"
         ;;
     force-restart)
@@ -124,29 +124,29 @@ case "${op}" in
         fi
         if ! ps -p "${pid}" > /dev/null
         then
-            echo "Chessire ${pid} is still grinning (but may be disapearing)." >&2
+            echo "Cheshire ${pid} is still grinning (but may be disapearing)." >&2
             exit 1
         fi
-        echo "Tickling Chessire using ${system_file}"
+        echo "Tickling Cheshire using ${system_file}"
         env "${lisp}" --script "${system_file}" "${config_file}"
         ;;
     status)
         if [ ! -r "${pid_file}" ]
         then
-            echo "Chessire already disapeared: no pid file."
+            echo "Cheshire already disapeared: no pid file."
             exit 0
         fi
         pid="$(cat "${pid_file}")"
         if [ -z "${pid}" ]
         then
-            echo "Chessire already disapeared: no pid."
+            echo "Cheshire already disapeared: no pid."
             exit 0
         fi
         if ps -p "${pid}" > /dev/null
         then
-            echo "Chessire ${pid} still grinning."
+            echo "Cheshire ${pid} still grinning."
         else
-            echo "Chessire ${pid} already disapeared."
+            echo "Cheshire ${pid} already disapeared."
         fi
         ;;
     *)
