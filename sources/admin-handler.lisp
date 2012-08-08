@@ -153,10 +153,10 @@
   "Handler for query-string operation"
   (cond ((starts-with-subseq "/add" path)
          (let* ((operation (make-keyword (string-upcase (post-parameter "operation"))))
-                ((value-kw (if (post-parameter "path-as-value")
-                               `(:value :path)
-                               (when (post-parameter "domain-as-value")
-                                 `(:value :domain)))))
+                (value-kw (if (post-parameter "path-as-value")
+                              `(:value :path)
+                              (when (post-parameter "domain-as-value")
+                                `(:value :domain))))
                 (qsu       (apply #'make-query-string-update operation 
                                   (nconc value-kw
                                          (mapcan (lambda (reader-spec)
