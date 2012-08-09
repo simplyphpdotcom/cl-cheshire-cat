@@ -23,43 +23,26 @@
 ;;; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 ;;; SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-(cl:in-package :cl-user)
+(cl:in-package :cl-cheshire-cat)
 
-(defpackage cl-cheshire-cat
-  (:nicknames cheshire cheshire-cat cl-cc)
-  (:documentation "Cheshire Cat (HTTP Redirection Server) main package")
-  (:use #:cl #:split-sequence)
-  (:import-from #:alexandria
-                #:emptyp #:deletef
-                #:starts-with-subseq #:ends-with-subseq
-                #:curry #:compose
-                #:symbolicate #:ensure-symbol #:make-keyword
-                #:once-only #:when-let
-                )
-  (:import-from #:cl-store
-                #:defstore-cl-store #:defrestore-cl-store
-                #:store-object #:restore-object
-                #:register-code #:output-type-code
-                #:*check-for-circs*
-                #:store #:restore
-                )
-  (:import-from #:cl-ppcre #:create-scanner #:regex-replace #:scan)
-  (:import-from #:usocket #:host-byte-order)
-  (:import-from #:hunchentoot
-                #:acceptor
-                #:acceptor-dispatch-request #:acceptor-error-template-directory
+(defclass two-steps-start-acceptor (acceptor)
+  ()
+  (:documentation "This acceptor implementation allow a two-step start: 1. the
+first step `start-listening` starts the socket without starting to accept
+connections 2. the second setp `start` starts to accept connection This system
+allow for example to daemonize the process and drop privileges before starting
+to accept connections."))
 
-                #:start #:start-listening #:acceptor-taskmaster
-                #:taskmaster-acceptor #:execute-acceptor #:acceptor-shutdown-p
+(defmethod start-listening :before ((acceptor two-steps-start-acceptor))
+  "Remove the shutdown state from the acceptor before starting to listen"
+  (setf (acceptor-shutdown-p acceptor) nil))
 
-                #:*request* #:host #:script-name* #:remote-addr*
-                #:post-parameter #:get-parameter #:get-parameters* #:post-parameters*
-
-                #:content-type* #:return-code* #:*reply*
-
-                #:url-encode #:redirect #:abort-request-handler
-
-                #:+http-bad-request+ #:+http-not-found+
-                #:+http-forbidden+ #:+http-moved-permanently+
-                )
-  (:export #:redirection-acceptor #:load-rules))
+(defmethod start ((acceptor two-steps-start-acceptor))
+  "If the first step was not run yet, run it. Then start the acceptor
+taskmaster. Inspired from hunchentoot default implementation."
+  (when (acceptor-shutdown-p acceptor)
+    (start-listening acceptor))
+  (let ((taskmaster (acceptor-taskmaster acceptor)))
+    (setf (taskmaster-acceptor taskmaster) acceptor)
+    (execute-acceptor taskmaster))
+  acceptor)

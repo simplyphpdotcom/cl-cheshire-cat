@@ -44,6 +44,7 @@
                                                :serial     t
                                                :components ((:file "singleton-class")
                                                             (:file "conditions")
+                                                            (:file "two-steps-start-acceptor")
                                                             (:file "query-string")
                                                             (:file "rules")))
                                       (:file "behavior")

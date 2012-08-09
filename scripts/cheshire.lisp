@@ -78,7 +78,7 @@ found) and whether the option was found or not."
     (setq hunchentoot:*show-lisp-backtraces-p* nil
           hunchentoot:*catch-errors-p* t))
 
-(hunchentoot:start *cheshire*)
+(hunchentoot:start-listening *cheshire*)
 
 ;; Daemonize Cheshire
 (when (get-cheshire-config "daemonize" :section-name "daemon" :type :boolean)
@@ -109,6 +109,8 @@ found) and whether the option was found or not."
 (let ((rules-file (get-cheshire-config "rules_file")))
   (when rules-file
     (load-rules *cheshire* rules-file)))
+
+(hunchentoot:start *cheshire*)
 
 ;; Sleeping loop
 (loop (sleep 10))

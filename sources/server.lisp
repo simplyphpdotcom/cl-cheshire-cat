@@ -25,7 +25,7 @@
 
 (cl:in-package :cl-cheshire-cat)
 
-(defclass redirection-acceptor (acceptor)
+(defclass redirection-acceptor (two-steps-start-acceptor)
   ((admin-host    :accessor redirection-acceptor-admin-host
                   :initarg :admin-host :initform "management.invalid"
                   :type string
