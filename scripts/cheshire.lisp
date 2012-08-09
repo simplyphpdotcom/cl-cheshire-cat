@@ -93,9 +93,10 @@ was found or not."
 (when (get-cheshire-config "enable" :section-name "swank" :type :boolean)
   (asdf:load-system :swank)
   (defparameter *swank-server*
-    (swank:create-server :port (get-cheshire-config "port" :section-name "swank" :type :integer)
-                         :coding-system "utf-8-unix"
-                         :dont-clost t)))
+    (funcall (alexandria:ensure-symbol :create-server :swank)
+             :port (get-cheshire-config "port" :section-name "swank" :type :integer)
+             :coding-system "utf-8-unix"
+             :dont-clost t)))
 
 ;; Load redirection rules
 (let ((rules-file (get-cheshire-config "rules_file")))
