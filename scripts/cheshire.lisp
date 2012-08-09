@@ -69,20 +69,13 @@ found) and whether the option was found or not."
                  :admin-host     (get-cheshire-config "admin_host"    :default-value "management.invalid"))
   "Cheshire cat acceptor")
 
-;; debugging bookeeping
-(setq hunchentoot:*show-lisp-errors-p* t)
-
-(defparameter *cheshire-debugp* (get-cheshire-config "debug" :type :boolean))
-(if *cheshire-debugp*
-    (setq hunchentoot:*show-lisp-backtraces-p* t
-          hunchentoot:*catch-errors-p* nil)
-    (setq hunchentoot:*show-lisp-backtraces-p* nil
-          hunchentoot:*catch-errors-p* t))
-
 (hunchentoot:start-listening *cheshire*)
 
 ;; Daemonize Cheshire
-(when (get-cheshire-config "daemonize" :section-name "daemon" :type :boolean)
+(defparameter *cheshire-daemonizep*
+  (get-cheshire-config "daemonize" :section-name "daemon" :type :boolean))
+
+(when *cheshire-daemonizep*
   #+sbcl
   (progn
     (asdf:load-system :sb-daemon)
@@ -98,12 +91,36 @@ found) and whether the option was found or not."
   (error "Daemonize facility is supported only using SBCL and sb-daemon. Any compatibility improvment patch is welcome."))
 
 ;; Start swank server if requested
-(when (get-cheshire-config "enable" :section-name "swank" :type :boolean)
+(defparameter *cheshire-swankp*
+  (get-cheshire-config "enable" :section-name "swank" :type :boolean))
+
+(when *cheshire-swankp*
   (asdf:load-system :swank)
   (defparameter *swank-server*
     (funcall (alexandria:ensure-symbol :create-server :swank)
              :port (get-cheshire-config "port" :section-name "swank" :type :number)
              :dont-close t)))
+
+;; debugging bookeeping
+(setq hunchentoot:*show-lisp-errors-p* t)
+
+(defparameter *cheshire-debugp*
+  (get-cheshire-config "debug" :type :boolean))
+
+(if *cheshire-debugp*
+    (progn
+      (setq hunchentoot:*show-lisp-backtraces-p* t
+            hunchentoot:*catch-errors-p* t)
+      ;; If swank is not used and cheshire daemonize, there is no way to access
+      ;; the debugguer therefore no use to it. Hunchentoot is going to catch the
+      ;; error instead.
+      (unless (and *cheshire-daemonizep* (not *cheshire-swankp*))
+        #+sbcl (sb-ext:enable-debugger)
+        (setf hunchentoot:*catch-errors-p* nil)))
+    (progn
+      (setq hunchentoot:*show-lisp-backtraces-p* nil
+            hunchentoot:*catch-errors-p* t)
+      #+sbcl (sb-ext:disable-debugger)))
 
 ;; Load redirection rules
 (let ((rules-file (get-cheshire-config "rules_file")))
