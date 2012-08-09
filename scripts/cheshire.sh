@@ -103,7 +103,7 @@ case "${op}" in
                 kill "${pid}"
             fi
         fi
-        sleep 2
+        sleep 3
         if ! ps -p "${pid}" > /dev/null
         then
             echo "Cheshire ${pid} is still grinning (but may be disapearing)." >&2
@@ -116,10 +116,20 @@ case "${op}" in
         if [ -r "${pid_file}" ]
         then
             pid="$(cat "${pid_file}")"
-            if [ -n "${pid}" ] && ps -p "${pid}" > /dev/null
+            if [ -n "${pid}" ]
             then
-                echo "Off with its head!"
-                kill -9 "${pid}"
+                if ps -p "${pid}" > /dev/null
+                then
+                    echo "Shushing Cheshire ${pid}..."
+                    kill "${pid}"
+                fi
+                sleep 3
+                if ps -p "${pid}" > /dev/null
+                then
+                    echo "Off with its head!"
+                    kill -9 "${pid}"
+                    sleep 3
+                fi
             fi
         fi
         if ! ps -p "${pid}" > /dev/null
