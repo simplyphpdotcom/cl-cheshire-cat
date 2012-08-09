@@ -61,9 +61,10 @@ as (ip-cidr-match-p #(A B C D) #(a b c d) n)."
 (defun compute-uri (path query-string)
   "Append each parameter in the query string to the path. path is expected not
 to have any query-string."
-  (let ((query-string (format nil "~{~{~A~^=~}~^&~}"
-                              (mapcar (lambda (arg)
-                                        (list (url-encode (car arg))
-                                              (url-encode (cdr arg))))
-                                      query-string))))
-    (concatenate 'string path "?" query-string)))
+  (let ((query-string (when query-string
+                        (format nil "?~{~{~A~^=~}~^&~}"
+                                (mapcar (lambda (arg)
+                                          (list (url-encode (car arg))
+                                                (url-encode (cdr arg))))
+                                        query-string)))))
+    (concatenate 'string path query-string)))
