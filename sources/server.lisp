@@ -72,7 +72,7 @@ request."
               (redirect (compute-uri path query-string) :host domain-name
                         :code http-status-code
                         :protocol (or protocol :http)
-                        :port (or port (if (eq protocol :https) 443 80)))))
+                        :port port)))
         (rs-loop-detected ()
           (setf (return-code* *reply*) +http-not-found+)))))
 
