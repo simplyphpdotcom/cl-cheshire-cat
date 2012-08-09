@@ -35,18 +35,23 @@
 (read-files *cheshire-config* `(,(or (nth 1 sb-ext:*posix-argv*)
                                      "/etc/cheshire.conf")))
 
-(defun get-cheshire-config (option-name &key (section-name "Cheshire") default-value (type :string) (config *cheshire-config*))
+(defun get-cheshire-config (option-name &key (section-name "Cheshire") default-value (type nil) (config *cheshire-config*))
   "Try to find the option in this section for this config. Type may be one
-of :boolean, :number or :string. Two values are returned: The value of the
-option (or the default value if the option was not found) and whether the option
-was found or not."
+of :boolean, :number or :string. If type is not specified (or is nil), the
+default type is return from py-configparser. This default is somewhat similar to
+a string, but not exactly (e.g. sb-posix will reject it). Two values are
+returned: The value of the option (or the default value if the option was not
+found) and whether the option was found or not."
   (if (and (has-section-p config section-name)
            (has-option-p config section-name option-name))
       (values
-       (let ((type (if (eq type :string)
-                       nil
-                       type)))
-         (get-option config section-name option-name :type type :expand nil))
+       (let* ((pycp-type (if (eq type :string)
+                             nil
+                             type))
+              (value (get-option config section-name option-name :type pycp-type :expand nil)))
+         (if (eq type :string)
+             (concatenate 'string value)
+             value))
        t)
       default-value))
 
@@ -83,8 +88,8 @@ was found or not."
                        :pidfile (get-cheshire-config "pid_file"  :section-name "daemon" :default-value "/var/run/cheshire.pid")
                        :output  (get-cheshire-config "log"       :section-name "daemon")
                        :error   (get-cheshire-config "error_log" :section-name "daemon")
-                       :user    (get-cheshire-config "user"      :section-name "daemon")
-                       :group   (get-cheshire-config "group"     :section-name "daemon")
+                       :user    (get-cheshire-config "user"      :section-name "daemon" :type :string)
+                       :group   (get-cheshire-config "group"     :section-name "daemon" :type :string)
                        :disable-debugger (not *cheshire-debugp*))
   #-sbcl
   (error "Daemonize facility is supported only using SBCL and sb-daemon. Any compatibility improvment patch is welcome."))
