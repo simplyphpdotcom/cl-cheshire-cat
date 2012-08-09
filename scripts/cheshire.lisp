@@ -81,16 +81,18 @@ found) and whether the option was found or not."
 (hunchentoot:start *cheshire*)
 
 ;; Daemonize Cheshire
-#+sbcl (asdf:load-system :sb-daemon)
 (when (get-cheshire-config "daemonize" :section-name "daemon" :type :boolean)
   #+sbcl
-  (sb-daemon:daemonize :exit-parent t
-                       :pidfile (get-cheshire-config "pid_file"  :section-name "daemon" :default-value "/var/run/cheshire.pid")
-                       :output  (get-cheshire-config "log"       :section-name "daemon")
-                       :error   (get-cheshire-config "error_log" :section-name "daemon")
-                       :user    (get-cheshire-config "user"      :section-name "daemon" :type :string)
-                       :group   (get-cheshire-config "group"     :section-name "daemon" :type :string)
-                       :disable-debugger (not *cheshire-debugp*))
+  (progn
+    (asdf:load-system :sb-daemon)
+    (funcall (alexandria:ensure-symbol :daemonize :sb-daemon)
+             :exit-parent t
+             :pidfile (get-cheshire-config "pid_file"  :section-name "daemon" :default-value "/var/run/cheshire.pid")
+             :output  (get-cheshire-config "log"       :section-name "daemon")
+             :error   (get-cheshire-config "error_log" :section-name "daemon")
+             :user    (get-cheshire-config "user"      :section-name "daemon" :type :string)
+             :group   (get-cheshire-config "group"     :section-name "daemon" :type :string)
+             :disable-debugger (not *cheshire-debugp*)))
   #-sbcl
   (error "Daemonize facility is supported only using SBCL and sb-daemon. Any compatibility improvment patch is welcome."))
 
