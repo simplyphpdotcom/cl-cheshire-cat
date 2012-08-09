@@ -16,11 +16,14 @@ The persistence layer is ensured using CL-STORE
 The recommended way to install cheshire is by using quicklisp as much as
 possible:
 
- 1. Using quicklisp, you can install:
-  * hunchentoot
-  * cl-store
-  * split-sequence
- 2. You need to manually install sb-daemon
+ 1. Using [`quicklisp`](http://www.quicklisp.org/), you can install:
+  * `hunchentoot`
+  * `cl-store`
+  * `split-sequence`
+ 2. You need to manually install `sb-daemon`
+
+If you use the provided `cheshire.sh` and `cheshire.lisp`, you also need to
+install `py-configparser` (available via quicklisp).
 
 # How to use
 
