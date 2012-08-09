@@ -24,6 +24,7 @@
 ;;; SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 (cl:in-package :cl-user)
+(require :asdf)
 
 ;; Load the config parser and the config
 (asdf:load-system :py-configparser)
