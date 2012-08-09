@@ -184,7 +184,7 @@ query-string-update."
                 :type string
                 :documentation "Replacement string to generate the new value of the parameter")
    (matcher     :reader qsu-matcher
-                :type cl-ppcre
+                :type t
                 :documentation "Compiled regex matcher"))
   (:documentation "Use a regex to modify the value of a parameter in the query string."))
 
