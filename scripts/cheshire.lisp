@@ -37,7 +37,7 @@
 
 (defun get-cheshire-config (option-name &key (section-name "Cheshire") default-value (type :string) (config *cheshire-config*))
   "Try to find the option in this section for this config. Type may be one
-of :boolean, :integer or :string. Two values are returned: The value of the
+of :boolean, :number or :string. Two values are returned: The value of the
 option (or the default value if the option was not found) and whether the option
 was found or not."
   (if (and (has-section-p config section-name)
@@ -56,7 +56,7 @@ was found or not."
 
 (defparameter *cheshire*
   (make-instance 'redirection-acceptor
-                 :port           (get-cheshire-config "port"          :default-value 80   :type :integer)
+                 :port           (get-cheshire-config "port"          :default-value 80   :type :number)
                  :address        (get-cheshire-config "address"       :default-value "0.0.0.0")
                  :admin-allowed (cheshire::parse-cidr-list
                                  (get-cheshire-config "admin_allowed" :default-value "127.0.0.1"))
@@ -94,7 +94,7 @@ was found or not."
   (asdf:load-system :swank)
   (defparameter *swank-server*
     (funcall (alexandria:ensure-symbol :create-server :swank)
-             :port (get-cheshire-config "port" :section-name "swank" :type :integer)
+             :port (get-cheshire-config "port" :section-name "swank" :type :number)
              :coding-system "utf-8-unix"
              :dont-clost t)))
 
