@@ -102,8 +102,7 @@ found) and whether the option was found or not."
   (defparameter *swank-server*
     (funcall (alexandria:ensure-symbol :create-server :swank)
              :port (get-cheshire-config "port" :section-name "swank" :type :number)
-             :coding-system "utf-8-unix"
-             :dont-clost t)))
+             :dont-close t)))
 
 ;; Load redirection rules
 (let ((rules-file (get-cheshire-config "rules_file")))
