@@ -88,7 +88,7 @@ found) and whether the option was found or not."
              :group   (get-cheshire-config "group"     :section-name "daemon" :type :string)
              :disable-debugger (not *cheshire-debugp*)))
   #-sbcl
-  (error "Daemonize facility is supported only using SBCL and sb-daemon. Any compatibility improvment patch is welcome."))
+  (error "Daemonize facility is supported only using SBCL and sb-daemon. Any compatibility improvement patch is welcome."))
 
 ;; Start swank server if requested
 (defparameter *cheshire-swankp*
