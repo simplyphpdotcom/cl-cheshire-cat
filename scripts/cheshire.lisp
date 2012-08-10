@@ -123,9 +123,13 @@ found) and whether the option was found or not."
       #+sbcl (sb-ext:disable-debugger)))
 
 ;; Load redirection rules
-(let ((rules-file (get-cheshire-config "rules_file")))
-  (when rules-file
-    (load-rules *cheshire* rules-file)))
+(defparameter *cheshire-rules-directory* (get-cheshire-config "rules_directory"))
+
+(when *cheshire-rules-directory*
+  (setf (redirection-acceptor-rule-directory *cheshire*) *cheshire-rules-directory*))
+
+(alexandria:when-let (rules-file (get-cheshire-config "rules_file"))
+  (load-rules *cheshire* rules-file))
 
 (hunchentoot:start *cheshire*)
 

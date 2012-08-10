@@ -333,13 +333,13 @@ Global management operations are impacting the behavior of the whole server.
 
 Currently, Cheshire supports only one global management operation: `/save-rules`
 
-This operation accepts one optional POST parameter: `file` which is the
-path to the file in which the rules will be stored. If the parameter is not
-provided, the file used is the one specified for the `rules_file` configuration.
+This operation accepts one optional POST parameter: `name` which is the name of
+the file in which the rules will be stored. If the parameter is not provided,
+the file used is the one specified for the `rules_file` configuration.
 
-There is currently no check or security restriction on the path used the save
-the files. It is your responsibility to ensure that the file is really the one
-you want and to provide Cheshire with an adequat privilege level.
+The file will be stored in the directory specified as the `rules_directory`
+configuration and with the `crr` extension. If there is no such configuration,
+the directory of the `rules_file` configuration will be used.
 
 Example:
 
@@ -348,7 +348,7 @@ POST /save-rules HTTP/1.1
 Host: management.invalid
 Content-type: application/x-www-form-urlencoded
 
-file=%2Fcheshire-bkp%2Fmy-bkp.crr
+name=my-bkp
 ```
 
 ## Domain name rule management
@@ -673,9 +673,6 @@ and subclasses.
 
 # Limitations
 
- * The backup facility should be set safer so Cheshire cannot rewrite arbitrary
-   files on the server by accident (TODO).
-
  * The implementation restricted part should be extracted away in another
    package/project (TODO).
 
@@ -684,15 +681,6 @@ and subclasses.
   planned.
 
  * No offline rule management.
-
-## Note regarding the backup facility TODO
-
-This is not seen as a major security issue because:
-
- * The management operations should be protected by (at least) IP access (and
-   HTTP is over TCP which should make IP spoofing hard enough).
-
- * Most important: cheshire should be always run with restricted privileges.
 
 # License
 

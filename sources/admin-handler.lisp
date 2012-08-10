@@ -224,9 +224,7 @@
       (cond
 
         ((starts-with-subseq "/save-rules" (script-name* *request*))
-         (store (redirection-acceptor-rules redirection-acceptor)
-                (or (post-parameter "file" *request*)
-                    (redirection-acceptor-rule-file redirection-acceptor)))
+         (save-rules redirection-acceptor (post-parameter "name" *request*))
          "OK")
 
         ((starts-with-subseq "/domain-name-rule/" (script-name* *request*))

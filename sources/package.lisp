@@ -62,4 +62,4 @@
                 #:+http-bad-request+ #:+http-not-found+
                 #:+http-forbidden+ #:+http-moved-permanently+
                 )
-  (:export #:redirection-acceptor #:load-rules))
+  (:export #:redirection-acceptor #:load-rules #:redirection-acceptor-rule-directory))

@@ -26,28 +26,34 @@
 (cl:in-package :cl-cheshire-cat)
 
 (defclass redirection-acceptor (two-steps-start-acceptor)
-  ((admin-host    :accessor redirection-acceptor-admin-host
-                  :initarg :admin-host :initform "management.invalid"
-                  :type string
-                  :documentation "The domain name used to manage this
-                  redirection acceptor.")
-   (admin-allowed :accessor redirection-acceptor-admin-allowed
-                  :initarg :admin-allowed :initform '(("127.0.0.1"))
-                  :type list
-                  :documentation "A list of CIDR block specifications. Each item
-                  of this list is a pair (IP prefix-length). IP is recommended
-                  to a string using the decimal dotted notation but could also
-                  be an host order 32 bytes integer or an host order byte
-                  vector.")
-   (rules         :accessor redirection-acceptor-rules
-                  :initform '()
-                  :type list
-                  :documentation "The list of redirection rules used by this
-                  acceptor.")
-   (rule-file     :reader redirection-acceptor-rule-file
-                  :type (or string null)
-                  :documentation "The default file used to store the rules. This
-                  is set when loading the rules from the file."))
+  ((admin-host      :accessor redirection-acceptor-admin-host
+                    :initarg :admin-host :initform "management.invalid"
+                    :type string
+                    :documentation "The domain name used to manage this
+                    redirection acceptor.")
+   (admin-allowed   :accessor redirection-acceptor-admin-allowed
+                    :initarg :admin-allowed :initform '(("127.0.0.1"))
+                    :type list
+                    :documentation "A list of CIDR block specifications. Each item
+                    of this list is a pair (IP prefix-length). IP is recommended
+                    to a string using the decimal dotted notation but could also
+                    be an host order 32 bytes integer or an host order byte
+                    vector.")
+   (rules           :accessor redirection-acceptor-rules
+                    :initform '()
+                    :type list
+                    :documentation "The list of redirection rules used by this
+                    acceptor.")
+   (rules-directory :accessor redirection-acceptor-rules-directory
+                    :type pathname
+                    :initarg :rule-directory
+                    :documentation "The directory in which rules will be
+                    stored. Only the default rule file can be out of this
+                    directory." )
+   (rules-file      :reader redirection-acceptor-rules-file
+                    :type string
+                    :documentation "The default file used to store the
+                    rules. This is set when loading the rules from the file."))
   (:documentation "Custom hunchentoot:acceptor implementing the behavior of the
   redirection server."))
 
@@ -55,6 +61,12 @@
   "Ensures the initialization of the <pre>matcher</pre> slot."
   (declare (ignore initargs))
   (setf (acceptor-error-template-directory instance) nil))
+
+(defmethod (setf redirection-acceptor-rules-directory) :around (new-directory (acceptor redirection-acceptor))
+  "Ensures the directory is a directory with no name and the crr type."
+  (call-next-method (make-pathname :name nil :type "crr"
+                                   :defaults new-directory)
+                    acceptor))
 
 (defmethod acceptor-dispatch-request ((acceptor redirection-acceptor) request)
   "This request dispatcher processes each HTTP request and handle adequatly the
@@ -81,4 +93,13 @@ request."
   rules for this acceptor. It's also registering the rule-file for future
   references."
   (setf (redirection-acceptor-rules acceptor) (restore file)
-        (slot-value acceptor 'rule-file)      file))
+        (slot-value acceptor 'rule-file)      file)
+  (when (not (slot-boundp acceptor 'rules-directory))
+    (setf (redirection-acceptor-rules-directory acceptor) file)))
+
+(defun save-rules (acceptor file)
+  (store (redirection-acceptor-rules redirection-acceptor)
+         (if file
+             (nerge-pathnames (pathname-name file)
+                              (redirection-acceptor-rules-directory acceptor))
+             (redirection-acceptor-rules-file redirection-acceptor))))
