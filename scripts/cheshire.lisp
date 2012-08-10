@@ -72,6 +72,9 @@ found) and whether the option was found or not."
 (hunchentoot:start-listening *cheshire*)
 
 ;; Daemonize Cheshire
+(defparameter *cheshire-debugp*
+  (get-cheshire-config "debug" :type :boolean))
+
 (defparameter *cheshire-daemonizep*
   (get-cheshire-config "daemonize" :section-name "daemon" :type :boolean))
 
@@ -103,9 +106,6 @@ found) and whether the option was found or not."
 
 ;; debugging bookeeping
 (setq hunchentoot:*show-lisp-errors-p* t)
-
-(defparameter *cheshire-debugp*
-  (get-cheshire-config "debug" :type :boolean))
 
 (if *cheshire-debugp*
     (progn
