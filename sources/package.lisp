@@ -34,7 +34,7 @@
                 #:starts-with-subseq #:ends-with-subseq
                 #:curry #:compose
                 #:symbolicate #:ensure-symbol #:make-keyword
-                #:once-only #:when-let
+                #:once-only #:when-let #:if-let
                 )
   (:import-from #:cl-store
                 #:defstore-cl-store #:defrestore-cl-store

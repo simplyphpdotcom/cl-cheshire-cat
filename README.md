@@ -344,7 +344,7 @@ you want and to provide Cheshire with an adequat privilege level.
 Example:
 
 ```
-POST /safe-rules HTTP/1.1
+POST /save-rules HTTP/1.1
 Host: management.invalid
 Content-type: application/x-www-form-urlencoded
 
@@ -397,6 +397,9 @@ POST parameters:
  * `position` (optional): Position at which the rule will be inserted
    in the rule list. If none is provided, the rule is inserted at the beginning
    of the list.
+ * `protocol` (optional): Protocol to use after the redirection. Must be one of
+   http or https.
+ * `port` (optional): Port number to use after the redirection.
 
 Example:
 
@@ -512,6 +515,9 @@ POST parameters:
  * `position` (optional): Position at which the rule will be inserted
    in the rule list. If none is provided, the rule is inserted at the beginning
    of the list.
+ * `protocol` (optional): Protocol to use after the redirection. Must be one of
+   http or https.
+ * `port` (optional): Port number to use after the redirection.
 
 Example:
 
