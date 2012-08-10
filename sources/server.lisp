@@ -92,7 +92,8 @@ request."
   "This function restore the list of rules from file and set them as the list of
   rules for this acceptor. It's also registering the rule-file for future
   references."
-  (setf (redirection-acceptor-rules acceptor) (restore file)
+  (setf (redirection-acceptor-rules acceptor) (when (file-exists-p file)
+                                                (restore file))
         (slot-value acceptor 'rule-file)      file)
   (when (not (slot-boundp acceptor 'rules-directory))
     (setf (redirection-acceptor-rules-directory acceptor) file)))

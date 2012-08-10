@@ -35,7 +35,8 @@
                 "cl-store"
                 "alexandria"
                 "usocket"
-                "split-sequence")
+                "split-sequence"
+                "cl-fad")
   :components ((:module "sources"
                         :serial      t
                         :components  ((:file "package")

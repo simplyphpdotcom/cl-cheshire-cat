@@ -128,6 +128,8 @@ found) and whether the option was found or not."
 (when *cheshire-rules-directory*
   (setf (redirection-acceptor-rule-directory *cheshire*) *cheshire-rules-directory*))
 
+(asdf:load-system :cl-fad)
+
 (alexandria:when-let (rules-file (get-cheshire-config "rules_file"))
   (load-rules *cheshire* rules-file))
 

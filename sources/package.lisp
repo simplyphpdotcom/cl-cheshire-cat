@@ -44,6 +44,7 @@
                 #:store #:restore
                 )
   (:import-from #:cl-ppcre #:create-scanner #:regex-replace #:scan)
+  (:import-from #:cl-fad #:file-exists-p)
   (:import-from #:usocket #:host-byte-order)
   (:import-from #:hunchentoot
                 #:acceptor
