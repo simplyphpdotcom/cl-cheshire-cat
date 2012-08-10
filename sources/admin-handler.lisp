@@ -30,7 +30,7 @@
   . \"{NEW-VALUE}\")."
   (loop for (name . new-value) in update-specs
      do (multiple-value-bind (match-p attribute-name)
-            (starts-with-subseq "new-" name)
+            (starts-with-subseq "new-" name :return-suffix t)
           (when (not match-p)
             (send-bad-request (format nil "Invalid update specification (~A).~%Update specification should be of the form: \"new-{ATTRIBUTE}\"={NEW-VALUE}." name)))
           (let* ((accessor-symbol (ensure-symbol (string-upcase (concatenate 'string "rr-" attribute-name)) :cl-cheshire-cat))
@@ -71,7 +71,7 @@
     
     ((starts-with-subseq "/list" path)
      (let ((kind        (when-let (kind (get-parameter "kind"))
-                          (make-keyword (string-upcase kind))))
+0                          (make-keyword (string-upcase kind))))
            (match       (when-let (match (get-parameter "match"))
                           (create-scanner match :single-line-mode t)))
            (replacement (when-let (replacement (get-parameter "replacement"))

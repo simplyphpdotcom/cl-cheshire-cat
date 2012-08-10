@@ -88,19 +88,19 @@ request."
         (rs-loop-detected ()
           (setf (return-code* *reply*) +http-not-found+)))))
 
-(defun load-rules (acceptor file)
+(defun load-rules (redirection-acceptor file)
   "This function restore the list of rules from file and set them as the list of
   rules for this acceptor. It's also registering the rule-file for future
   references."
-  (setf (redirection-acceptor-rules acceptor) (when (file-exists-p file)
-                                                (restore file))
-        (slot-value acceptor 'rule-file)      file)
-  (when (not (slot-boundp acceptor 'rules-directory))
-    (setf (redirection-acceptor-rules-directory acceptor) file)))
+  (setf (redirection-acceptor-rules redirection-acceptor) (when (file-exists-p file)
+                                                            (restore file))
+        (slot-value redirection-acceptor 'rules-file)      file)
+  (when (not (slot-boundp redirection-acceptor 'rules-directory))
+    (setf (redirection-acceptor-rules-directory redirection-acceptor) file)))
 
-(defun save-rules (acceptor file)
+(defun save-rules (redirection-acceptor file)
   (store (redirection-acceptor-rules redirection-acceptor)
          (if file
-             (nerge-pathnames (pathname-name file)
-                              (redirection-acceptor-rules-directory acceptor))
+             (merge-pathnames (pathname-name file)
+                              (redirection-acceptor-rules-directory redirection-acceptor))
              (redirection-acceptor-rules-file redirection-acceptor))))

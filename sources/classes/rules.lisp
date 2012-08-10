@@ -239,7 +239,7 @@ returned values."
 (defrestore-cl-store (domain-redirection-rule stream)
   (destructuring-bind (kind match replacement http-code protocol port qsus uri-rules)
       (restore-object stream)
-    (let* ((rule (make-instance 'uri-redirection-rule
+    (let* ((rule (make-instance 'domain-redirection-rule
                                 :kind kind :match match :replacement replacement
                                 :http-code http-code
                                 :protocol protocol :port port)))
