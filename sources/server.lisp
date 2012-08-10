@@ -58,7 +58,7 @@
   redirection server."))
 
 (defmethod initialize-instance :after ((instance redirection-acceptor) &rest initargs &key &allow-other-keys)
-  "Ensures the initialization of the <pre>matcher</pre> slot."
+  "Ensures there is no error template directory."
   (declare (ignore initargs))
   (setf (acceptor-error-template-directory instance) nil))
 
