@@ -1,6 +1,6 @@
 ;;; Copyright © 2012, Mathieu Lemoine <mlemoine@mentel.com>, Mentel Inc.
 ;;; All rights reserved.
-;;; 
+;;;
 ;;; Redistribution and use in source and binary forms, with or without
 ;;; modification, are permitted provided that the following conditions are met:
 ;;;     * Redistributions of source code must retain the above copyright
@@ -11,7 +11,7 @@
 ;;;     * Neither the name of "Mentel Inc." nor the names of its contributors may be
 ;;;       used to endorse or promote products derived from this software without
 ;;;       specific prior written permission.
-;;; 
+;;;
 ;;; THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ;;; ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 ;;; WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -58,7 +58,8 @@
                                                       :http)
                                           :port (parse-integer-or-nil (post-parameter "port")))
                            :position (parse-integer-or-nil (post-parameter "position")))
-     "OK")
+     "OK
+")
 
     ((starts-with-subseq "/remove" path)
      (if (post-parameter "confirmed")
@@ -66,24 +67,26 @@
            (remove-domain-name-rule (redirection-acceptor-rules redirection-acceptor)
                                     (make-keyword (string-upcase (get-parameter "kind")))
                                     (get-parameter "match"))
-           "OK")
-         "Not confirmed, nothing deleted."))
-    
+           "OK
+")
+         "Not confirmed, nothing deleted.
+"))
+
     ((starts-with-subseq "/list" path)
      (let ((kind        (when-let (kind (get-parameter "kind"))
-0                          (make-keyword (string-upcase kind))))
+                          0                          (make-keyword (string-upcase kind))))
            (match       (when-let (match (get-parameter "match"))
                           (create-scanner match :single-line-mode t)))
            (replacement (when-let (replacement (get-parameter "replacement"))
                           (create-scanner replacement :single-line-mode t))))
-       (format nil "~S" (remove-if (lambda (rule)
-                                     (or (when kind
-                                           (not (eq kind (rr-kind rule))))
-                                         (when match
-                                           (not (scan match (rr-match rule))))
-                                         (when replacement
-                                           (not (scan replacement (rr-replacement rule))))))
-                                   (redirection-acceptor-rules redirection-acceptor)))))
+       (format nil "~S~&" (remove-if (lambda (rule)
+                                       (or (when kind
+                                             (not (eq kind (rr-kind rule))))
+                                           (when match
+                                             (not (scan match (rr-match rule))))
+                                           (when replacement
+                                             (not (scan replacement (rr-replacement rule))))))
+                                     (redirection-acceptor-rules redirection-acceptor)))))
 
     ((starts-with-subseq "/update" path)
      (let ((rule (find-domain-name-rule (redirection-acceptor-rules redirection-acceptor)
@@ -91,7 +94,8 @@
                                         (get-parameter "match")
                                         :error-p t)))
        (update-rule% rule (post-parameters* *request*)))
-     "OK")
+     "OK
+")
 
     ((starts-with-subseq "/query-string-updates/" path)
      (let ((rule  (find-domain-name-rule (redirection-acceptor-rules redirection-acceptor)
@@ -99,7 +103,7 @@
                                          (get-parameter "domain-name-match" *request*)
                                          :error-p t)))
        (admin-query-string-handler% (subseq path 21) rule)))
-))
+    ))
 
 (defun admin-uri-rules-handler% (path domain-name-rule)
   "Handler for URI rules management."
@@ -116,7 +120,8 @@
                                               :http)
                                   :port (parse-integer-or-nil (post-parameter "port")))
                    :position (parse-integer-or-nil (post-parameter "position")))
-     "OK")
+     "OK
+")
 
     ((starts-with-subseq "/remove" path)
      (if (post-parameter "confirmed")
@@ -124,8 +129,10 @@
            (remove-uri-rule domain-name-rule
                             (make-keyword (string-upcase (post-parameter "kind")))
                             (post-parameter "match"))
-           "OK")
-         "Not confirmed, nothing deleted."))
+           "OK
+")
+         "Not confirmed, nothing deleted.
+"))
 
     ((starts-with-subseq "/list" path)
      (let ((kind        (get-parameter "kind"))
@@ -133,14 +140,14 @@
                           (create-scanner match :single-line-mode t)))
            (replacement (when-let (replacement (get-parameter "replacement"))
                           (create-scanner replacement :single-line-mode t))))
-       (format nil "~S" (remove-if (lambda (rule)
-                                     (or (when kind
-                                           (not (eq kind (rr-kind rule))))
-                                         (when match
-                                           (not (scan match (rr-match rule))))
-                                         (when replacement
-                                           (not (scan replacement (rr-replacement rule))))))
-                                   (drr-uri-rules domain-name-rule)))))
+       (format nil "~S~&" (remove-if (lambda (rule)
+                                       (or (when kind
+                                             (not (eq kind (rr-kind rule))))
+                                           (when match
+                                             (not (scan match (rr-match rule))))
+                                           (when replacement
+                                             (not (scan replacement (rr-replacement rule))))))
+                                     (drr-uri-rules domain-name-rule)))))
 
     ((starts-with-subseq "/update" path)
      (let ((rule (find-uri-rule domain-name-rule
@@ -148,7 +155,8 @@
                                 (get-parameter "match")
                                 :error-p t)))
        (update-rule% rule (post-parameters* *request*)))
-     "OK")
+     "OK
+")
 
     ((starts-with-subseq "/query-string-updates/" path)
      (let ((rule  (find-uri-rule domain-name-rule
@@ -165,27 +173,30 @@
                               `(:value :path)
                               (when (post-parameter "domain-as-value")
                                 `(:value :domain))))
-                (qsu       (apply #'make-query-string-update operation 
+                (qsu       (apply #'make-query-string-update operation
                                   (nconc value-kw
                                          (mapcan (lambda (reader-spec)
                                                    (let* ((kw (car reader-spec))
                                                           (param-name (string-downcase (symbol-name kw))))
                                                      (when-let (value (post-parameter param-name))
-                                                       `((,kw . ,value))))) 
+                                                       `((,kw . ,value)))))
                                                  *qsu-generic-readers*)))))
            (add-qs-update rule qsu
                           :position (parse-integer-or-nil (post-parameter "position"))))
-         "OK")
+         "OK
+")
 
         ((starts-with-subseq "/remove" path)
          (if (post-parameter "confirmed")
-             (progn 
+             (progn
                (remove-qs-update rule
                                  (make-keyword (string-upcase (post-parameter "operation")))
                                  (post-parameter "name")
                                  (post-parameter "match"))
-               "OK")
-             "Not confirmed, nothing deleted."))
+               "OK
+")
+             "Not confirmed, nothing deleted.
+"))
 
         ((starts-with-subseq "/list" path)
          (let ((operation   (when-let (operation (get-parameter "operation"))
@@ -198,18 +209,18 @@
                               (create-scanner match :single-line-mode t)))
                (replacement (when-let (replacement (get-parameter "replacement"))
                               (create-scanner replacement :single-line-mode t))))
-           (format nil "~S" (remove-if (lambda (update)
-                                         (or (when operation
-                                               (not (eq operation     (qsu-operation   update))))
-                                             (when name
-                                               (not (scan name        (qsu-name        update))))
-                                             (when new-name
-                                               (not (scan new-name    (qsu-new-name    update))))
-                                             (when match
-                                               (not (scan match       (qsu-match       update))))
-                                             (when replacement
-                                               (not (scan replacement (qsu-replacement update))))))
-                                       (rr-qs-updates rule)))))))
+           (format nil "~S~&" (remove-if (lambda (update)
+                                           (or (when operation
+                                                 (not (eq operation     (qsu-operation   update))))
+                                               (when name
+                                                 (not (scan name        (qsu-name        update))))
+                                               (when new-name
+                                                 (not (scan new-name    (qsu-new-name    update))))
+                                               (when match
+                                                 (not (scan match       (qsu-match       update))))
+                                               (when replacement
+                                                 (not (scan replacement (qsu-replacement update))))))
+                                         (rr-qs-updates rule)))))))
 
 (defun admin-handler (redirection-acceptor)
   "Management handler."
@@ -225,7 +236,8 @@
 
         ((starts-with-subseq "/save-rules" (script-name* *request*))
          (save-rules redirection-acceptor (post-parameter "name" *request*))
-         "OK")
+         "OK
+")
 
         ((starts-with-subseq "/domain-name-rule/" (script-name* *request*))
          (admin-domain-name-rules-handler% (subseq (script-name* *request*) 17)
@@ -243,11 +255,11 @@
                (signal condition))))))
 
     (rs-no-such-domain-rule (condition)
-      (send-bad-request (format nil "No such domain name rule (~A ~A)."
+      (send-bad-request (format nil "No such domain name rule (~A ~A).~&"
                                 (rr-kind condition) (rr-match condition))
                         +http-not-found+))
     (rs-no-such-uri-rule (condition)
-      (send-bad-request (format nil "No such URI rule (~A ~A) for domain name rule (~A ~A)."
+      (send-bad-request (format nil "No such URI rule (~A ~A) for domain name rule (~A ~A).~&"
                                 (rr-kind condition) (rr-match condition)
                                 (rr-kind (urr-domain-name-rule condition)) (rr-match (urr-domain-name-rule condition)))
                         +http-not-found+))))
