@@ -50,12 +50,12 @@
                          :type (or null (integer 300 399))
                          :documentation "The HTTP Status Code sent when this
                          rule is applied. Can be overwritten by a subsequent
-                         rule."  )
-   (protocol             :accessor rr-protocol    :initarg protocol :initform :http
+                         rule.")
+   (protocol             :accessor rr-protocol    :initarg :protocol :initform :http
                          :type (member :http :https)
                          :documentation "The protocol to use after
                          redirection (HTTP or HTTPS)")
-   (port                 :accessor rr-port        :initarg port :initform nil
+   (port                 :accessor rr-port        :initarg :port :initform nil
                          :type (or null unsigned-byte)
                          :documentation "Port to use for the
                          redirection. Default depends on the protocol")
