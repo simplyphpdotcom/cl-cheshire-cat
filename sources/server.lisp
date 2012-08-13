@@ -77,7 +77,7 @@ request."
       (handler-case
           (destructuring-bind (domain-name path &optional (http-status-code 302) protocol port qs-updates)
               (compute-redirection (redirection-acceptor-rules acceptor)
-                                   (host *request*) (script-name* *request*))
+                                   (or (host *request*) "") (script-name* *request*))
             (let ((query-string (copy-alist (get-parameters* *request*))))
               (dolist (update qs-updates)
                 (setf query-string (update-query-string update query-string (host *request*) (script-name* *request*))))
