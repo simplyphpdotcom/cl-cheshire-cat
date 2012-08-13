@@ -60,7 +60,7 @@
 
                 #:url-encode #:redirect #:abort-request-handler
 
-                #:+http-bad-request+ #:+http-not-found+
+                #:+http-bad-request+ #:+http-not-found+ #:+http-moved-temporarily+
                 #:+http-forbidden+ #:+http-moved-permanently+
                 )
   (:export #:redirection-acceptor #:load-rules #:redirection-acceptor-rule-directory))
