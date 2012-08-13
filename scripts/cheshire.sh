@@ -104,7 +104,7 @@ case "${op}" in
             fi
         fi
         sleep 3
-        if ! ps -p "${pid}" > /dev/null
+        if ps -p "${pid}" > /dev/null
         then
             echo "Cheshire ${pid} is still grinning (but may be disapearing)." >&2
             exit 1
@@ -122,17 +122,17 @@ case "${op}" in
                 then
                     echo "Shushing Cheshire ${pid}..."
                     kill "${pid}"
+                    sleep 2
                 fi
-                sleep 3
                 if ps -p "${pid}" > /dev/null
                 then
                     echo "Off with its head!"
                     kill -9 "${pid}"
-                    sleep 3
+                    sleep 2
                 fi
             fi
         fi
-        if ! ps -p "${pid}" > /dev/null
+        if ps -p "${pid}" > /dev/null
         then
             echo "Cheshire ${pid} is still grinning (but may be disapearing)." >&2
             exit 1
