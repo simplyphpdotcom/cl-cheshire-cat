@@ -101,11 +101,11 @@ rules. Redirection rules are not readably printable."
 (defun unsummarize-query-string-update% (summary)
   "Return the list of arguments to give to make-instance to recreate a similar
 query-string-update."
-  `(,(class<-qsu-operation (cdr (assoc :operation summary)))
+  `(,(cdr (assoc :operation summary))
      ,@(mapcan (lambda (reader-spec)
                  (let ((kw (car reader-spec)))
                    (when-let (value (cdr (assoc kw summary)))
-                     `((,kw . ,value)))))
+                     `(,kw ,value))))
                *qsu-generic-readers*)))
 
 (defparameter +qsu-code+ (register-code 210 'query-string-update)
@@ -118,7 +118,7 @@ query-string-update."
 
 (defrestore-cl-store (query-string-update stream)
   (apply #'make-query-string-update
-         (apply #'unsummarize-query-string-update% (restore-object stream))))
+         (funcall #'unsummarize-query-string-update% (restore-object stream))))
 
 (defclass qs-clear (query-string-update)
   ()

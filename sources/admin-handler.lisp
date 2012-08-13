@@ -180,7 +180,7 @@
                                                    (let* ((kw (car reader-spec))
                                                           (param-name (string-downcase (symbol-name kw))))
                                                      (when-let (value (post-parameter param-name))
-                                                       `((,kw . ,value)))))
+                                                       `(,kw ,value))))
                                                  *qsu-generic-readers*)))))
            (add-qs-update rule qsu
                           :position (parse-integer-or-nil (post-parameter "position"))))
