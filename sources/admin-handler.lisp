@@ -127,8 +127,8 @@
      (if (post-parameter "confirmed")
          (progn
            (remove-uri-rule domain-name-rule
-                            (make-keyword (string-upcase (post-parameter "kind")))
-                            (post-parameter "match"))
+                            (make-keyword (string-upcase (get-parameter "kind")))
+                            (get-parameter "match"))
            "OK
 ")
          "Not confirmed, nothing deleted.
@@ -191,9 +191,9 @@
          (if (post-parameter "confirmed")
              (progn
                (remove-qs-update rule
-                                 (make-keyword (string-upcase (post-parameter "operation")))
-                                 (post-parameter "name")
-                                 (post-parameter "match"))
+                                 (make-keyword (string-upcase (get-parameter "operation")))
+                                 (get-parameter "name")
+                                 (get-parameter "match"))
                "OK
 ")
              "Not confirmed, nothing deleted.
