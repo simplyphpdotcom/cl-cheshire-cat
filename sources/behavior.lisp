@@ -39,7 +39,7 @@
 and match."
   (let ((key (remove nil (list operation name match))))
     (deletef (rr-qs-updates rule) key
-             :key #'qsu-key :test #'equal)))
+             :key #'qsu-key :test #'equal :count 1)))
 
 (defun find-qs-update (rule operation name match &key error-p)
   "This function returns the query string update designated by operation name
@@ -67,7 +67,7 @@ inserted in <pre>rules</pre>. If <pre>position</pre> is nil or unspecified,
 <pre>kind</pre> and <pre>match</pre>. <pre>rule</pre> must match exactly. If no
 such rule is found, returns silently."
   `(deletef ,rules (list ,kind ,match)
-            :key #'rr-key :test #'equal))
+            :key #'rr-key :test #'equal :count 1))
 
 (defun find-domain-name-rule (rules kind match &key error-p)
   "This function returns the domain name rule with matching <pre>kind</pre> and
@@ -97,7 +97,7 @@ unspecified, <pre>rule</pre> will be inserted at the begining of
 <pre>kind</pre> and <pre>match</pre>. <pre>rule</pre> must match exactly. If no
 such rule is found, returns silently."
   (deletef (drr-uri-rules domain-redirection-rule) (list kind match)
-           :key #'rr-key :test #'equal))
+           :key #'rr-key :test #'equal :count 1))
 
 (defun find-uri-rule (domain-redirection-rule kind match &key error-p)
   "This function returns the URI rule with matching <pre>kind</pre> and
