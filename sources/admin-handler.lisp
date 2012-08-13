@@ -74,7 +74,7 @@
 
     ((starts-with-subseq "/list" path)
      (let ((kind        (when-let (kind (get-parameter "kind"))
-                          0                          (make-keyword (string-upcase kind))))
+                          (make-keyword (string-upcase kind))))
            (match       (when-let (match (get-parameter "match"))
                           (create-scanner match :single-line-mode t)))
            (replacement (when-let (replacement (get-parameter "replacement"))
@@ -135,7 +135,8 @@
 "))
 
     ((starts-with-subseq "/list" path)
-     (let ((kind        (get-parameter "kind"))
+     (let ((kind        (when-let (kind (get-parameter "kind"))
+                          (make-keyword (string-upcase kind))))
            (match       (when-let (match (get-parameter "match"))
                           (create-scanner match :single-line-mode t)))
            (replacement (when-let (replacement (get-parameter "replacement"))
