@@ -89,6 +89,25 @@ request."
         (rs-loop-detected ()
           (setf (return-code* *reply*) +http-not-found+)))))
 
+(defmethod acceptor-log-access ((acceptor redirection-acceptor) &key return-code)
+  "Adapted syntax for access log, just like the default, but include the host to."
+  (with-log-stream (stream (acceptor-access-log-destination acceptor) *access-log-lock*)
+    (format stream "~:[-~@[ (~A)~]~;~:*~A~@[ (~A)~]~] ~:[-~;~:*~A~] [~A] \"~A ~A~@[?~A~] ~
+                    ~A\" (Host: ~A) ~D ~:[-~;~:*~D~] \"~:[-~;~:*~A~]\" \"~:[-~;~:*~A~]\"~%"
+            (remote-addr*)
+            (header-in* :x-forwarded-for)
+            (authorization)
+            (iso-time)
+            (request-method*)
+            (script-name*)
+            (query-string*)
+            (server-protocol*)
+            (host)
+            return-code
+            (content-length*)
+            (referer)
+            (user-agent))))
+
 (defun load-rules (redirection-acceptor file)
   "This function restore the list of rules from file and set them as the list of
   rules for this acceptor. It's also registering the rule-file for future

@@ -49,7 +49,12 @@
   (:import-from #:hunchentoot
                 #:acceptor
                 #:acceptor-dispatch-request #:acceptor-error-template-directory
-                #:acceptor-access-log-destination
+
+                #:acceptor-access-log-destination #:*access-log-lock*
+                #:header-in* #:authorization #:iso-time #:query-string*
+                #:request-method* #:server-protocol* #:return-code
+                #:content-length* #:referer #:user-agent #:with-log-stream
+                #:acceptor-log-access
 
                 #:start #:start-listening #:acceptor-taskmaster
                 #:taskmaster-acceptor #:execute-acceptor #:acceptor-shutdown-p
