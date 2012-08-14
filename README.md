@@ -331,15 +331,19 @@ Each operation is specified using three mecanisms:
 
 Global management operations are impacting the behavior of the whole server.
 
-Currently, Cheshire supports only one global management operation: `/save-rules`
+### Save the current rules
 
-This operation accepts one optional POST parameter: `name` which is the name of
-the file in which the rules will be stored. If the parameter is not provided,
-the file used is the one specified for the `rules_file` configuration.
+Path: `/save-rules`
 
-The file will be stored in the directory specified as the `rules_directory`
+POST Parameter:
+
+ * `name` (optional): name of the file in which the rules will be stored. If the
+parameter is not provided, the file used is the one from which the rules have
+been pre-loaded (`rules-file`).
+
+The file will be stored in the directory specified as the `rules-directory`
 configuration and with the `crr` extension. If there is no such configuration,
-the directory of the `rules_file` configuration will be used.
+the directory of the `rules-file` configuration will be used.
 
 Example:
 
@@ -349,6 +353,34 @@ Host: management.invalid
 Content-type: application/x-www-form-urlencoded
 
 name=my-bkp
+```
+
+### Load a new set of rules
+
+Path: `/load-rules`
+
+POST Parameter:
+
+ * `name` (optional): name of the file from which the rules will be loaded. If
+   the parameter is not provided, the file used is the one from which the rules
+   have been pre-loaded (`rules-file`).
+ * `erase-all`: If this parameter is not given, an error message will be
+   sent. Since loading a new set of rules delete any other rule currently in
+   effect, this confirmation is here as a security.
+
+The file will be loaded from the directory specified as the `rules-directory`
+configuration and with the `crr` extension. If there is no such configuration,
+the directory of the `rules-file` configuration will be used.
+
+Example:
+
+```
+POST /load-rules HTTP/1.1
+Host: management.invalid
+Content-type: application/x-www-form-urlencoded
+
+name=my-bkp
+erase-all=OK
 ```
 
 ## Domain name rule management

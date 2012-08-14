@@ -108,7 +108,7 @@ request."
             (referer)
             (user-agent))))
 
-(defun load-rules (redirection-acceptor file)
+(defun preload-rules (redirection-acceptor file)
   "This function restore the list of rules from file and set them as the list of
   rules for this acceptor. It's also registering the rule-file for future
   references."
@@ -118,7 +118,18 @@ request."
   (when (not (slot-boundp redirection-acceptor 'rules-directory))
     (setf (redirection-acceptor-rules-directory redirection-acceptor) file)))
 
+(defun load-rules (redirection-acceptor file)
+  "Save all the rules in mentioned file."
+  (let ((file (if file
+                  (merge-pathnames (pathname-name file)
+                                   (redirection-acceptor-rules-directory redirection-acceptor))
+                  (redirection-acceptor-rules-file redirection-acceptor))))
+  (with-open-file (stream file)
+    (setf (redirection-acceptor-rules redirection-acceptor)
+          (restore file)))))
+
 (defun save-rules (redirection-acceptor file)
+  "Save all the rules in mentioned file."
   (store (redirection-acceptor-rules redirection-acceptor)
          (if file
              (merge-pathnames (pathname-name file)

@@ -131,7 +131,7 @@ found) and whether the option was found or not."
 (asdf:load-system :cl-fad)
 
 (alexandria:when-let (rules-file (get-cheshire-config "rules_file"))
-  (load-rules *cheshire* rules-file))
+  (preload-rules *cheshire* rules-file))
 
 (hunchentoot:start *cheshire*)
 

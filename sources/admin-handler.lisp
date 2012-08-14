@@ -240,6 +240,18 @@
          "OK
 ")
 
+        ((starts-with-subseq "/load-rules" (script-name* *request*))
+         (if (post-parameter "erase-all" *request*)
+             (progn
+               (load-rules redirection-acceptor (post-parameter "name" *request*))
+               "OK
+")
+             (if (post-parameter "confirmed")
+                 "erase-all parameter expected as a confirmation: loading a set of rules would delete any current rule.
+"
+                 "Not confirmed, loading a set of rules would delete any current rule.
+")))
+
         ((starts-with-subseq "/domain-name-rule/" (script-name* *request*))
          (admin-domain-name-rules-handler% (subseq (script-name* *request*) 17)
                                            redirection-acceptor))
