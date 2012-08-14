@@ -168,7 +168,14 @@ returned values."
                            (values (string= match target-string) target-string))))
 
             (:prefix (create-regex-matcher
-                      (create-scanner `(:sequence :modeless-start-anchor ,match)
+                      (create-scanner `(:sequence :modeless-start-anchor
+                                                  ,match
+                                                  (:greedy-repetition 0 1
+                                                                      (:sequence #\.
+                                                                                 (:register
+                                                                                  (:greedy-repetition 0 nil
+                                                                                                      :everything))))
+                                                  :modeless-end-anchor-no-newline) 
                                       :single-line-mode t)
                       replacement))
             
@@ -220,7 +227,14 @@ returned values."
                            (values (string-equal match target-string) target-string))))
             
             (:suffix (create-regex-matcher
-                      (create-scanner `(:sequence ,match :modeless-end-anchor-no-newline)
+                      (create-scanner `(:sequence :modeless-start-anchor
+                                                  (:greedy-repetition 0 1
+                                                                      (:sequence (:register
+                                                                                  (:greedy-repetition 0 nil
+                                                                                                      :everything))
+                                                                                 #\.))
+                                                  ,match
+                                                  :modeless-end-anchor-no-newline)
                                       :single-line-mode t :case-insensitive-mode t)
                       replacement))
 

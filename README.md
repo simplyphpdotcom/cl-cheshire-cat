@@ -181,7 +181,7 @@ If the rule is an `exact` match, the rewritte specification is use to replace th
 whole domain name.
 
 If the rule is a `suffix` match, the rewritte specification may contain once the
-special substring ``"\`"``, which will be replaced by the prefix (non matching part)
+special substring ``"\1"``, which will be replaced by the prefix (non matching part)
 of the original domain name.
 
 If the rule is a `regex` match, any string replacement accepted by
@@ -207,7 +207,7 @@ URI replacements for `exact` and `regex` match occurs the same way as Domain
 rewritting.
 
 If the rule is a `prefix` match, the rewritte specification may contain once the
-special substring `"\'"`, which will be replaced by the suffix (non matching part)
+special substring `"\1"`, which will be replaced by the suffix (non matching part)
 of the original URI.
 
 ## Redirection parameters
