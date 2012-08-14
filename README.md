@@ -216,9 +216,9 @@ Each redirection specification can also include redirection parameters.
 
 ### HTTP Status Code
 
-The first parameter supported is `http-code` and its default value is 302.
+The first parameter supported is `http-code` and its default value is 301.
 
-`http-code` must be one of 300, 301, 302 (default), 303 or 307. This status code
+`http-code` must be one of 300, 301 (default), 302, 303 or 307. This status code
 will be the one used in the answer sent to the client. The behavior is
 unspecified if an invalid status code specification is given.
 

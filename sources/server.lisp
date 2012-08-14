@@ -76,14 +76,14 @@ request."
                     (host *request*))
       (admin-handler acceptor)
       (handler-case
-          (destructuring-bind (domain-name path &optional (http-status-code +http-moved-temporarily+) protocol port qs-updates)
+          (destructuring-bind (domain-name path &optional (http-status-code +http-moved-permanently+) protocol port qs-updates)
               (compute-redirection (redirection-acceptor-rules acceptor)
                                    (or (host *request*) "") (script-name* *request*))
             (let ((query-string (copy-alist (get-parameters* *request*))))
               (dolist (update qs-updates)
                 (setf query-string (update-query-string update query-string (host *request*) (script-name* *request*))))
               (redirect (compute-uri path query-string) :host domain-name
-                        :code (or http-status-code +http-moved-temporarily+)
+                        :code (or http-status-code +http-moved-permanently+)
                         :protocol (or protocol :http)
                         :port port)))
         (rs-loop-detected ()
