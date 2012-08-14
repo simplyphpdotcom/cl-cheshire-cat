@@ -49,6 +49,7 @@
   (:import-from #:hunchentoot
                 #:acceptor
                 #:acceptor-dispatch-request #:acceptor-error-template-directory
+                #:acceptor-access-log-destination
 
                 #:start #:start-listening #:acceptor-taskmaster
                 #:taskmaster-acceptor #:execute-acceptor #:acceptor-shutdown-p

@@ -60,7 +60,8 @@
 (defmethod initialize-instance :after ((instance redirection-acceptor) &rest initargs &key &allow-other-keys)
   "Ensures there is no error template directory."
   (declare (ignore initargs))
-  (setf (acceptor-error-template-directory instance) nil))
+  (setf (acceptor-error-template-directory instance) nil
+        (acceptor-access-log-destination instance) *standard-output*))
 
 (defmethod (setf redirection-acceptor-rules-directory) :around (new-directory (acceptor redirection-acceptor))
   "Ensures the directory is a directory with no name and the crr type."
