@@ -68,4 +68,5 @@
 
                 #:+http-bad-request+ #:+http-not-found+
                 #:+http-forbidden+ #:+http-moved-permanently+)
-  (:export #:redirection-acceptor #:preload-rules #:redirection-acceptor-rule-directory))
+  (:export #:redirection-acceptor #:preload-rules #:redirection-acceptor-rule-directory
+           #:drr-uri-rules))
