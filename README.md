@@ -51,6 +51,18 @@ first argument of the script is either `start`, `stop`, `restart` or `status`
 and makes the script perform the appropriate action. The script should always be
 executed as root.
 
+If you copy this script directly into `/etc/init.d/`, there is a slight
+possibility that the script will run when started as root, but not at boot time
+(e.g. on Debian 6.0). In this case, you will need to specify locale and/or home
+in the configuration file. That's because the environment is not exactly the
+same one when the service is started at boot time.
+
+Second, if you see that the error log is populated with messages "Cannot open
+such file" or "Cannot create such directory" when you use daemonize and
+privilege dropping, make sure all the directories Cheshire tries to right into
+are owned by the appropriate user. This include in particular `home/.cache`,
+`home/.slime` and their sub-directories.
+
 The second argument is expected to be a configuration file. If none is given,
 `/etc/cheshire.conf` is the default configuration file.
 
