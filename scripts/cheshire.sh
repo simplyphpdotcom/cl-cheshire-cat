@@ -43,10 +43,15 @@ if [ -r "${config_file}" ]
 then
     pid_file="$(grep -E '^pid_file=' "${config_file}" | cut -d '=' -f 2)"
     system_file="$(grep -E '^system=' "${config_file}" | cut -d '=' -f 2)"
+    home="$(grep -E '^home=' "${config_file}" | cut -d '=' -f 2)"
+    locale="$(grep -E '^locale=' "${config_file}" | cut -d '=' -f 2)"
 fi
 
 [ -z "${pid_file}" ] && pid_file="/var/run/cheshire.pid"
 [ -z "${system_file}" ] && system_file="/usr/share/cheshire/scripts/cheshire.lisp"
+
+home="HOME=${home:-${HOME}}"
+locale="LANG=${locale:-${LANG}}"
 
 case "${op}" in
     start)
@@ -61,7 +66,7 @@ case "${op}" in
             fi
         fi
         echo "Tickling Cheshire using ${system_file}..."
-        env "${lisp}" --script "${system_file}" "${config_file}"
+        env "${locale}" "${home}" "${lisp}" --script "${system_file}" "${config_file}" "${asdf_config}"
         ;;
     stop)
         if [ ! -r "${pid_file}" ]
